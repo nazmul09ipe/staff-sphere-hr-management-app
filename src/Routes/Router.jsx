@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import HomeLayout from "../Layouts/HomeLayout/HomeLayout";
 import AuthLayout from "../Layouts/AuthLayout/AuthLayout";
 import Dashboard from "../Layouts/DashboardLayout/Dashboard";
@@ -43,25 +43,38 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: (
+      <PrivateRoute allowedRoles={["employee","hr","admin"]}>
+        <Dashboard />
+      </PrivateRoute>
+    ),
     children: [
-      { element: <PrivateRoute allowedRoles={["employee"]} />, children: [
-        { path: "work-sheet", element: <EmployeeWorkSheet /> },
-        { path: "payment-history", element: <EmployeePaymentHistory /> },
-      ]},
-      { element: <PrivateRoute allowedRoles={["hr"]} />, children: [
-        { path: "employee-list", element: <HR_EmployeeList /> },
-        { path: "progress", element: <HR_Progress /> },
-        { path: "details/:slug", element: <HR_Details /> },
-      ]},
-      { element: <PrivateRoute allowedRoles={["admin"]} />, children: [
-        { path: "all-employee-list", element: <Admin_AllEmployees /> },
-        { path: "payroll", element: <Admin_Payroll /> },
-      ]},
-      { path: "", element: <Unauthorized /> }, // default
+      // Employee routes
+      { path: "work-sheet", element: <EmployeeWorkSheet />, allowedRoles: ["employee"] },
+      { path: "payment-history", element: <EmployeePaymentHistory />, allowedRoles: ["employee"] },
+
+      // HR routes
+      { path: "employee-list", element: <HR_EmployeeList />, allowedRoles: ["hr"] },
+      { path: "progress", element: <HR_Progress />, allowedRoles: ["hr"] },
+      { path: "details/:slug", element: <HR_Details />, allowedRoles: ["hr"] },
+
+      // Admin routes
+      { path: "all-employee-list", element: <Admin_AllEmployees />, allowedRoles: ["admin"] },
+      { path: "payroll", element: <Admin_Payroll />, allowedRoles: ["admin"] },
+
+      // Default dashboard redirect
+      {
+        path: "",
+        element: <Navigate to="/dashboard/redirect" replace />,
+      },
+      {
+        path: "redirect",
+        element: <Dashboard />, // Dashboard will handle role-based redirect internally
+      },
     ],
   },
   { path: "*", element: <Error /> },
+  { path: "/unauthorized", element: <Unauthorized /> },
 ]);
 
 export default router;

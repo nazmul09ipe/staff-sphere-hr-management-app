@@ -1,58 +1,112 @@
-import { createContext, useEffect, useState } from "react";
+// src/Contexts/AuthContext/AuthProvider.jsx
+import React, { createContext, useEffect, useState } from "react";
 import {
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
+  getAuth,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { auth } from "../../../Firebase.config";
+import app from "../../../Firebase.config";
 
 export const AuthContext = createContext();
+const API_URL = "http://localhost:5000";
 
-export default function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+const auth = getAuth(app);
 
-  // REGISTER USER
-  const createUser = (email, password) => {
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);       // Firebase user
+  const [role, setRole] = useState(null);       // employee/hr/admin
+  const [loading, setLoading] = useState(true); // while fetching user & role
+
+  // ------------------ Register ------------------
+  const createUser = async (email, password, displayName, photoURL = "") => {
     setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+
+      // Update Firebase profile
+      await updateProfile(result.user, { displayName, photoURL });
+
+      // Save user to backend
+      await fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: result.user.uid,
+          name: displayName,
+          email,
+          role: "employee", // default, can update later
+          photo: photoURL,
+          bank_account_no: "",
+          salary: "",
+          designation: "",
+        }),
+      });
+
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // LOGIN USER
-  const signIn = (email, password) => {
+  // ------------------ Login ------------------
+  const signIn = async (email, password) => {
     setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+    try {
+      return await signInWithEmailAndPassword(auth, email, password);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // LOGOUT
-  const logOut = () => {
+  // ------------------ Logout ------------------
+  const logOut = async () => {
     setLoading(true);
-    return signOut(auth);
+    await signOut(auth);
+    setUser(null);
+    setRole(null);
+    setLoading(false);
   };
 
-  // OBSERVER
+  // ------------------ Fetch Role ------------------
+  const fetchRole = async (uid) => {
+    try {
+      const res = await fetch(`${API_URL}/users/role/${uid}`);
+      if (!res.ok) throw new Error("Failed to fetch role");
+      const data = await res.json();
+      return data.role;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
+  // ------------------ Listen Auth State ------------------
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setLoading(true);
       setUser(currentUser);
+
+      if (currentUser?.uid) {
+        const userRole = await fetchRole(currentUser.uid);
+        setRole(userRole);
+      } else {
+        setRole(null);
+      }
+
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
-  const authInfo = {
-    user,
-    loading,
-    createUser,
-    signIn,
-    logOut,
-    updateProfile,
-  };
-
   return (
-    <AuthContext.Provider value={authInfo}>
+    <AuthContext.Provider value={{ user, role, loading, createUser, signIn, logOut }}>
       {children}
     </AuthContext.Provider>
   );
 }
+
+export default AuthProvider;
