@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DashBoardLayout = () => {
+const Admin_AllEmployees = () => {
     return (
         <div>
             
@@ -8,4 +8,4 @@ const DashBoardLayout = () => {
     );
 };
 
-export default DashBoardLayout;
+export default Admin_AllEmployees;

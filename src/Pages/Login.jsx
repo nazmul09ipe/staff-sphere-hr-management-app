@@ -1,24 +1,22 @@
 // @flow strict
 import * as React from "react";
 
-import { useState,use } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
-
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-
 
 import { auth } from "../../Firebase.config";
 import { AuthContext } from '../Contexts/AuthContext/AuthProvider';
 import PageTitle from '../Shared/PageTitle';
 
-
-
-
 function Login() {
-  const { signIn } = use(AuthContext);
+
+  // ❗ FIXED
+  const { signIn } = React.useContext(AuthContext);
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +28,6 @@ function Login() {
       .then(() => navigate("/"))
       .catch((error) => alert(error.message));
   };
-
 
   const provider = new GoogleAuthProvider();
 

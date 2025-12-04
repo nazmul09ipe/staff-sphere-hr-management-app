@@ -1,29 +1,18 @@
-// @flow strict
+import { useContext } from "react";
+import { Navigate, Outlet } from "react-router";
+import { AuthContext } from "../Contexts/AuthContext/AuthProvider";
 
-import * as React from 'react';
-import { Navigate } from 'react-router';
-import { use } from 'react';
+const PrivateRoute = ({ allowedRoles }) => {
+  const { user, loading } = useContext(AuthContext);
 
-import { AuthContext } from './../Contexts/AuthContext/AuthProvider';
-import Loading from './Loading';
+  if (loading) return <p>Loading...</p>; // ⭐ FIX
 
+  if (!user) return <Navigate to="/login" />;
 
+  if (allowedRoles && !allowedRoles.includes(user.role))
+    return <Navigate to="/unauthorized" />;
 
-const  PrivateRoute=({children}) =>{
- 
-const{user,loading}=use(AuthContext)
-if(loading){
-    return <Loading></Loading>
-}
-if(user && user?.email){
-    return children
-}
-
-    return < Navigate to ="/auth/login"></Navigate>
-          
-   
-    
-  
+  return <Outlet />;
 };
 
 export default PrivateRoute;

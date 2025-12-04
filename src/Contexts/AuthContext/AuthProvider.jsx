@@ -1,74 +1,58 @@
-// @flow strict
-
-import * as React from "react";
-import { useState, createContext } from "react";
+import { createContext, useEffect, useState } from "react";
 import {
   createUserWithEmailAndPassword,
-  getAuth,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
+  onAuthStateChanged,
   signOut,
+  updateProfile,
 } from "firebase/auth";
-
-import { useEffect } from "react";
-import app from "../../../Firebase.config";
-
-
-
-
+import { auth } from "../../../Firebase.config";
 
 export const AuthContext = createContext();
 
-function AuthProvider({ children }) {
+export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const auth = getAuth(app);
-  
-  const[loading,setLoading]=useState(true);
+  const [loading, setLoading] = useState(true);
 
-
+  // REGISTER USER
   const createUser = (email, password) => {
-     setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
-   
-  };
-  const logOut = () => {
-    return signOut(auth)
-      .then(() => {
-        alert("You have successfully logged out");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const signIn=(email,password)=>{
     setLoading(true);
-    return signInWithEmailAndPassword(auth,email,password);
-    
-  }
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
 
+  // LOGIN USER
+  const signIn = (email, password) => {
+    setLoading(true);
+    return signInWithEmailAndPassword(auth, email, password);
+  };
+
+  // LOGOUT
+  const logOut = () => {
+    setLoading(true);
+    return signOut(auth);
+  };
+
+  // OBSERVER
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false)
+      setLoading(false);
     });
-
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
-  const AuthData = {
+  const authInfo = {
     user,
-    setUser,
-    createUser,
-    logOut,
-    signIn,
     loading,
-    setLoading
+    createUser,
+    signIn,
+    logOut,
+    updateProfile,
   };
 
-  return <AuthContext value={AuthData}>{children}</AuthContext>;
+  return (
+    <AuthContext.Provider value={authInfo}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
-
-export default AuthProvider;
