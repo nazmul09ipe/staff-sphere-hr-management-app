@@ -12,17 +12,21 @@ const HrWorkRecords = () => {
   const axiosSecure = useAxiosSecure();
 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(months[new Date().getMonth()]);
+  const [selectedMonth, setSelectedMonth] = useState(
+    months[new Date().getMonth()]
+  );
 
   /* ================= EMPLOYEES ================= */
 
-  const { data: employees = [] } = useQuery({
+  const { data } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const res = await axiosSecure.get("/users?role=employee");
       return res.data;
     },
   });
+
+  const employees = data?.employees || [];
 
   /* ================= WORK RECORDS ================= */
 
@@ -38,18 +42,16 @@ const HrWorkRecords = () => {
       return res.data;
     },
   });
-console.log(works);
+
   return (
     <div className="bg-slate-100 min-h-screen p-6">
 
       <h2 className="text-2xl font-bold mb-6">Employee Work Records</h2>
 
       {/* FILTERS */}
-
       <div className="flex gap-4 mb-6">
 
-        {/* EMPLOYEE DROPDOWN */}
-
+        {/* EMPLOYEE */}
         <Listbox value={selectedEmployee} onChange={setSelectedEmployee}>
           <div className="relative w-64">
             <Listbox.Button className="w-full bg-white border rounded-lg px-4 py-2 text-left shadow">
@@ -58,7 +60,7 @@ console.log(works);
 
             <Transition as={Fragment}>
               <Listbox.Options className="absolute z-10 w-full bg-white shadow rounded mt-1">
-                <Listbox.Option value={null} className="px-4 py-2 cursor-pointer hover:bg-slate-100">
+                <Listbox.Option value={null} className="px-4 py-2 hover:bg-gray-100">
                   All Employees
                 </Listbox.Option>
 
@@ -66,7 +68,7 @@ console.log(works);
                   <Listbox.Option
                     key={emp._id}
                     value={emp}
-                    className="px-4 py-2 cursor-pointer hover:bg-slate-100"
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   >
                     {emp.name}
                   </Listbox.Option>
@@ -76,8 +78,7 @@ console.log(works);
           </div>
         </Listbox>
 
-        {/* MONTH DROPDOWN */}
-
+        {/* MONTH */}
         <Listbox value={selectedMonth} onChange={setSelectedMonth}>
           <div className="relative w-48">
             <Listbox.Button className="w-full bg-white border rounded-lg px-4 py-2 text-left shadow">
@@ -90,7 +91,7 @@ console.log(works);
                   <Listbox.Option
                     key={month}
                     value={month}
-                    className="px-4 py-2 cursor-pointer hover:bg-slate-100"
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   >
                     {month}
                   </Listbox.Option>
@@ -103,7 +104,6 @@ console.log(works);
       </div>
 
       {/* TABLE */}
-
       <div className="bg-white rounded-xl shadow overflow-x-auto">
         <table className="table">
           <thead>
@@ -134,7 +134,7 @@ console.log(works);
                   <td>{work.email}</td>
                   <td>{work.task}</td>
                   <td>{work.hours}</td>
-                  <td>{new Date(work.createdAt).toLocaleDateString()}</td>
+                  <td>{new Date(work.date).toLocaleDateString()}</td>
                 </tr>
               ))
             )}

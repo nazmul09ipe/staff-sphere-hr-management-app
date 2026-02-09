@@ -15,15 +15,23 @@ const HrEmployeeList = () => {
   const [payUser, setPayUser] = useState(null);
   const { register, handleSubmit, reset } = useForm();
 
+  const [page, setPage] = useState(1);
+  const limit = 8;
+
   /* ================= FETCH EMPLOYEES ================= */
 
-  const { data: employees = [], refetch } = useQuery({
-    queryKey: ["employees"],
+  const { data = {}, refetch } = useQuery({
+    queryKey: ["employees", page],
     queryFn: async () => {
-      const res = await axiosSecure.get("/users?role=employee");
+      const res = await axiosSecure.get(
+        `/users?role=employee&page=${page}&limit=${limit}`,
+      );
       return res.data;
     },
   });
+
+  const employees = data.employees || [];
+  const totalPages = Math.ceil((data.total || 0) / limit);
 
   /* ================= TOGGLE VERIFY ================= */
 
@@ -79,10 +87,9 @@ const HrEmployeeList = () => {
                 <td>{emp.name}</td>
                 <td>{emp.email}</td>
 
-                {/* VERIFIED */}
                 <td>
                   <button onClick={() => toggleVerify(emp)}>
-                    {emp.isVerified === true ? (
+                    {emp.isVerified ? (
                       <FaCheck className="text-green-500 text-xl" />
                     ) : (
                       <FaTimes className="text-red-500 text-xl" />
@@ -90,13 +97,9 @@ const HrEmployeeList = () => {
                   </button>
                 </td>
 
-                {/* BANK */}
                 <td>{emp.bank_account_no}</td>
-
-                {/* SALARY */}
                 <td>${emp.salary}</td>
 
-                {/* PAY */}
                 <td>
                   <button
                     disabled={!emp.isVerified}
@@ -109,7 +112,6 @@ const HrEmployeeList = () => {
                   </button>
                 </td>
 
-                {/* DETAILS */}
                 <td>
                   <Link to={`/dashboard/employee-details/${emp.email}`}>
                     <FaInfoCircle className="text-xl cursor-pointer text-blue-500" />
@@ -119,6 +121,60 @@ const HrEmployeeList = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* PAGINATION */}
+
+      <div className="flex items-center justify-center gap-2 mt-8">
+        {/* Previous */}
+
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className={`px-4 py-2 rounded-lg border transition
+      ${
+        page === 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-blue-500 hover:bg-blue-600 text-white border-blue-300"
+      }
+    `}
+        >
+          Prev
+        </button>
+
+        {/* Page Numbers */}
+
+        {[...Array(totalPages).keys()].map((num) => (
+          <button
+            key={num}
+            onClick={() => setPage(num + 1)}
+            className={`w-8 h-8 rounded-full transition font-semibold
+        ${
+          page === num + 1
+            ? "bg-blue-600 text-white shadow"
+            : "bg-white border hover:bg-blue-50"
+        }
+      `}
+          >
+            {num + 1}
+          </button>
+        ))}
+
+        {/* Next */}
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+          className={`px-4 py-2 rounded-lg border transition
+      ${
+        page === totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-blue-600 text-white hover:bg-blue-700"
+      }
+    `}
+        >
+          Next
+        </button>
       </div>
 
       {/* PAY MODAL */}
@@ -140,7 +196,6 @@ const HrEmployeeList = () => {
               required
               className="input input-bordered w-full"
             />
-
             <input
               {...register("year")}
               placeholder="Year"
