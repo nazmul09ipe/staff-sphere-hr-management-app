@@ -1,26 +1,30 @@
 // src/Routes/PrivateRoute.jsx
 import React, { useContext } from "react";
-import { Navigate } from "react-router";
-import { AuthContext } from "../Contexts/AuthContext/AuthProvider";
+import { Navigate, useLocation} from "react-router";
 
-const PrivateRoute = ({ allowedRoles, children }) => {
-  const { user, role, loading } = useContext(AuthContext);
+import Loading from "./Loading";
+import AuthContext from "../Contexts/AuthContext/AuthContext";
+
+
+const PrivateRoute = ({  children }) => {
+  const { user,  loading } = useContext(AuthContext);
+  const location=useLocation();
+
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-lg font-semibold">
-        Loading Dashboard...
+        <Loading />
       </div>
     );
   }
 
-  if (!user) return <Navigate to="/auth/login" replace />;
+  if (!user) return <Navigate to="/auth/login" state={location.pathname} />;
 
-  if (allowedRoles && !allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" replace />;
+  return children; 
   }
+ 
+ 
 
-  return children; // FIXED!!!
-};
 
 export default PrivateRoute;

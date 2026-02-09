@@ -1,18 +1,21 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { AuthContext } from "../Contexts/AuthContext/AuthProvider";
-import PageTitle from "../Shared/PageTitle";
-import { updateProfile } from "firebase/auth";
 import Swal from "sweetalert2";
-import { useForm } from "react-hook-form";
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import PageTitle from "../Shared/PageTitle";
+import useAxiosSecure from "../Hooks/useAxiosSecure";
+import AuthContext from "../Contexts/AuthContext/AuthContext";
 
-function Register() {
-  const { createUser } = useContext(AuthContext);
+const Register = () => {
+  const { createUser, updateUserProfile } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -23,168 +26,145 @@ function Register() {
 
   const onSubmit = async (data) => {
     try {
-      const {
-        name,
-        email,
-        password,
-        role,
-        bank_account_no,
-        salary,
-        designation,
-        photo,
-      } = data;
+      setLoading(true);
 
-      /* ---------- IMAGE UPLOAD ---------- */
+      await createUser(data.email, data.password);
+
       let photoURL = "";
-      if (photo && photo[0]) {
-        const formData = new FormData();
-        formData.append("image", photo[0]);
 
-        const key = import.meta.env.VITE_IMGBB_KEY;
-        const res = await fetch(
-          `https://api.imgbb.com/1/upload?key=${key}`,
-          {
-            method: "POST",
-            body: formData,
-          }
+      if (data.photo?.[0]) {
+        const formData = new FormData();
+        formData.append("image", data.photo[0]);
+
+        const imgRes = await axios.post(
+          `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_KEY}`,
+          formData
         );
 
-        const imgData = await res.json();
-        if (imgData.success) {
-          photoURL = imgData.data.url;
-        }
+        photoURL = imgRes.data.data.url;
       }
 
-      /* ---------- FIREBASE REGISTER ---------- */
-      const result = await createUser(email, password);
-      const user = result.user;
-
-      await updateProfile(user, {
-        displayName: name,
+      await updateUserProfile({
+        displayName: data.name,
         photoURL,
       });
 
-      /* ---------- SAVE USER TO BACKEND ---------- */
       const userInfo = {
-        uid: user.uid,
-        name,
-        email,
-        role,
-        photo: photoURL,
-        bank_account_no,
-        salary,
-        designation,
+        name: data.name,
+        email: data.email,
+        photoURL,
+        role: data.role,
+        bank_account_no: data.bank_account_no,
+        salary: Number(data.salary),
+        designation: data.designation,
+        isVerified: false,
       };
 
-      await fetch(`${API_URL}/users`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userInfo),
-      });
+      await axiosSecure.post("/users", userInfo);
 
-      Swal.fire("Success", "Registration completed!", "success");
+      Swal.fire("Success", "Account created successfully", "success");
+
       reset();
       navigate("/");
+
     } catch (error) {
       Swal.fire("Error", error.message, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900 p-6">
+    <div className="min-h-screen flex justify-center items-center bg-linear-to-br from-slate-100 to-slate-200 p-6">
       <PageTitle title="Register" />
 
-      <div className="bg-white dark:bg-gray-800 w-full max-w-lg p-8 rounded-2xl shadow-xl">
-        <h2 className="text-3xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
+      <div className="bg-white w-full max-w-xl p-10 rounded-2xl shadow-2xl">
+
+        <h2 className="text-3xl font-bold text-center mb-2">
           Create Account
         </h2>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* NAME */}
-          <input
-            className="input"
-            placeholder="Full Name"
-            {...register("name", { required: true })}
-          />
+        <p className="text-center text-gray-500 mb-6">
+          Register as Employee or HR
+        </p>
 
-          {/* EMAIL */}
-          <input
-            type="email"
-            className="input"
-            placeholder="Email"
-            {...register("email", { required: true })}
-          />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+          {/* NAME */}
+          <input className="input input-bordered w-full" placeholder="Full Name" {...register("name", { required: "Name is required" })} />
+          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
 
           {/* PHOTO */}
-          <input
-            type="file"
-            accept="image/*"
-            className="input"
-            {...register("photo")}
-          />
+          <input type="file" className="file-input file-input-bordered w-full" {...register("photo")} />
+
+          {/* EMAIL */}
+          <input className="input input-bordered w-full" placeholder="Email" {...register("email", { required: "Email is required" })} />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
 
           {/* ROLE */}
-          <select className="input" {...register("role", { required: true })}>
+          <select className="select select-bordered w-full" {...register("role", { required: "Role is required" })}>
             <option value="">Select Role</option>
-            <option value="Employee">Employee</option>
-            <option value="HR">HR</option>
+            <option value="employee">Employee</option>
+            <option value="hr">HR</option>
           </select>
+          {errors.role && <p className="text-red-500 text-sm">{errors.role.message}</p>}
 
           {/* BANK */}
-          <input
-            className="input"
-            placeholder="Bank Account No"
-            {...register("bank_account_no", { required: true })}
-          />
+          <input className="input input-bordered w-full" placeholder="Bank Account Number" {...register("bank_account_no", { required: "Bank account required" })} />
+          {errors.bank_account_no && <p className="text-red-500 text-sm">{errors.bank_account_no.message}</p>}
 
           {/* SALARY */}
-          <input
-            type="number"
-            className="input"
-            placeholder="Salary"
-            {...register("salary", { required: true })}
-          />
+          <input type="number" className="input input-bordered w-full" placeholder="Salary" {...register("salary", { required: "Salary required" })} />
+          {errors.salary && <p className="text-red-500 text-sm">{errors.salary.message}</p>}
 
           {/* DESIGNATION */}
-          <input
-            className="input"
-            placeholder="Designation"
-            {...register("designation", { required: true })}
-          />
+          <input className="input input-bordered w-full" placeholder="Designation" {...register("designation", { required: "Designation required" })} />
+          {errors.designation && <p className="text-red-500 text-sm">{errors.designation.message}</p>}
 
           {/* PASSWORD */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              className="input pr-10"
+              className="input input-bordered w-full pr-10"
               placeholder="Password"
-              {...register("password", { required: true, minLength: 6 })}
+              {...register("password", {
+                required: "Password required",
+                minLength: { value: 6, message: "Minimum 6 characters" },
+                pattern: {
+                  value: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/,
+                  message: "Must contain upper, lower, number & symbol",
+                },
+              })}
             />
 
-            {/* 👁 Eye icon – perfectly centered */}
-            <span
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-600"
-              onClick={() => setShowPassword(!showPassword)}
-            >
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
               {showPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
 
-          {/* SUBMIT */}
-          <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">
-            Register
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password.message}</p>
+          )}
+
+          <p className="text-xs text-gray-400">
+            Password must contain uppercase, lowercase, number & symbol.
+          </p>
+
+          <button disabled={loading} className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">
+            {loading ? "Creating..." : "Register"}
           </button>
 
-          <p className="text-center text-sm">
-            Already have an account?{" "}
-            <Link to="/auth/login" className="text-blue-600 underline">
+          <p className="text-center text-sm font-semibold">
+            Already have account?
+            <Link to="/auth/login" className="text-blue-500 underline ml-1">
               Login
             </Link>
           </p>
+
         </form>
       </div>
     </div>
   );
-}
+};
 
 export default Register;

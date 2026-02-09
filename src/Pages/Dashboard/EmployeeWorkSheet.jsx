@@ -1,173 +1,176 @@
-// src/Pages/Dashboard/EmployeeWorkSheet.jsx
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../Contexts/AuthContext/AuthProvider";
-import axios from "axios";
+import React, { useContext, useState } from "react";
+import { useForm } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useQuery } from "@tanstack/react-query";
+import { FaTrash, FaEdit } from "react-icons/fa";
+import AuthContext from "../../Contexts/AuthContext/AuthContext";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
-const EmployeeWorkSheet = () => {
-  const { user, token } = useContext(AuthContext); // Firebase user & JWT token
-  const [task, setTask] = useState("Sales");
-  const [hoursWorked, setHoursWorked] = useState(0);
-  const [date, setDate] = useState(new Date());
-  const [workRecords, setWorkRecords] = useState([]);
-  const [editId, setEditId] = useState(null);
+const WorkSheet = () => {
+  const { user } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
 
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [editItem, setEditItem] = useState(null);
 
-  const fetchWork = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/work`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setWorkRecords(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const { register, handleSubmit, reset } = useForm();
 
-  useEffect(() => {
-    if (user && token) fetchWork();
-  }, [user, token]);
+  /* ================= FETCH DATA ================= */
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newWork = {
-      task,
-      hoursWorked,
-      date: date.toISOString(),
-      month: date.getMonth() + 1,
+  const { data: works = [], refetch } = useQuery({
+    queryKey: ["works", user?.email],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/works?email=${user.email}`);
+      return res.data;
+    },
+  });
+
+  /* ================= ADD ================= */
+
+  const onSubmit = async (data) => {
+    const payload = {
+      ...data,
+      name: user.displayName,
+      hours: Number(data.hours),
+      date: selectedDate.toISOString(),
+      email: user.email,
     };
 
-    try {
-      if (editId) {
-        // Update existing work
-        await axios.patch(`${API_URL}/work/${editId}`, newWork, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setEditId(null);
-      } else {
-        // Add new work
-        const res = await axios.post(`${API_URL}/work`, newWork, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setWorkRecords([res.data, ...workRecords]);
-      }
-      setTask("Sales");
-      setHoursWorked(0);
-      setDate(new Date());
-      fetchWork();
-    } catch (err) {
-      console.error(err);
-    }
+    await axiosSecure.post("/works", payload);
+    reset();
+    refetch();
   };
 
-  const handleEdit = (record) => {
-    setEditId(record._id);
-    setTask(record.task);
-    setHoursWorked(record.hoursWorked);
-    setDate(new Date(record.date));
-  };
+  /* ================= DELETE ================= */
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/work/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setWorkRecords(workRecords.filter((w) => w._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
+    await axiosSecure.delete(`/works/${id}`);
+    refetch();
+  };
+
+  /* ================= UPDATE ================= */
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    await axiosSecure.patch(`/works/${editItem._id}`, editItem);
+    setEditItem(null);
+    refetch();
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Work Sheet</h2>
-
-      {/* Form */}
+    <div className="space-y-6 bg-slate-100 dark:bg-gray-900 p-4 rounded-xl shadow">
+      {/* FORM */}
       <form
-        onSubmit={handleSubmit}
-        className="flex items-end gap-4 mb-6 flex-wrap"
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex gap-4 items-center flex-wrap bg-white p-4 rounded-xl shadow"
       >
-        <div>
-          <label>Task</label>
-          <select
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            className="border px-2 py-1 rounded ml-2"
-          >
-            <option>Sales</option>
-            <option>Support</option>
-            <option>Content</option>
-            <option>Paper-work</option>
-          </select>
-        </div>
+        <select {...register("task")} className="select select-bordered">
+          <option>Sales</option>
+          <option>Support</option>
+          <option>Content</option>
+          <option>Paper-work</option>
+        </select>
 
-        <div>
-          <label>Hours Worked</label>
-          <input
-            type="number"
-            value={hoursWorked}
-            onChange={(e) => setHoursWorked(Number(e.target.value))}
-            className="border px-2 py-1 rounded ml-2 w-20"
-          />
-        </div>
+        <input
+          type="number"
+          {...register("hours")}
+          placeholder="Hours"
+          className="input input-bordered"
+          required
+        />
 
-        <div>
-          <label>Date</label>
-          <DatePicker
-            selected={date}
-            onChange={(d) => setDate(d)}
-            className="border px-2 py-1 rounded ml-2"
-          />
-        </div>
+        <DatePicker
+          selected={selectedDate}
+          onChange={(date) => setSelectedDate(date)}
+          className="input input-bordered"
+        />
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          {editId ? "Update" : "Add"}
-        </button>
+        <button className="btn btn-primary">Add</button>
       </form>
 
-      {/* Table */}
-      <table className="min-w-full border border-collapse">
-        <thead>
-          <tr>
-            <th className="border px-3 py-2">Task</th>
-            <th className="border px-3 py-2">Hours</th>
-            <th className="border px-3 py-2">Date</th>
-            <th className="border px-3 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {workRecords.map((rec) => (
-            <tr key={rec._id}>
-              <td className="border px-3 py-2">{rec.task}</td>
-              <td className="border px-3 py-2">{rec.hoursWorked}</td>
-              <td className="border px-3 py-2">
-                {new Date(rec.date).toLocaleDateString()}
-              </td>
-              <td className="border px-3 py-2 flex gap-2">
-                <button
-                  onClick={() => handleEdit(rec)}
-                  className="bg-yellow-400 px-2 py-1 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(rec._id)}
-                  className="bg-red-500 text-white px-2 py-1 rounded"
-                >
-                  Delete
-                </button>
-              </td>
+      {/* TABLE */}
+
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Hours</th>
+              <th>Date</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {works.map((w) => (
+              <tr key={w._id}>
+                <td>{w.task}</td>
+                <td>{w.hours}</td>
+                <td>
+                  {w.date ? new Date(w.date).toLocaleDateString() : "N/A"}
+                </td>
+                <td className="flex gap-3">
+                  <FaEdit
+                    className="cursor-pointer text-blue-500"
+                    onClick={() => setEditItem(w)}
+                  />
+
+                  <FaTrash
+                    className="cursor-pointer text-red-500"
+                    onClick={() => handleDelete(w._id)}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* EDIT MODAL */}
+
+      {editItem && (
+        <dialog open className="modal">
+          <form className="modal-box space-y-4" onSubmit={handleUpdate}>
+            <h3 className="font-bold text-lg">Edit Work</h3>
+
+            <select
+              value={editItem.task}
+              onChange={(e) =>
+                setEditItem({ ...editItem, task: e.target.value })
+              }
+              className="select select-bordered w-full"
+            >
+              <option>Sales</option>
+              <option>Support</option>
+              <option>Content</option>
+              <option>Paper-work</option>
+            </select>
+
+            <input
+              type="number"
+              value={editItem.hours}
+              onChange={(e) =>
+                setEditItem({ ...editItem, hours: e.target.value })
+              }
+              className="input input-bordered w-full"
+            />
+
+            <button className="btn btn-primary w-full">Update</button>
+
+            <button
+              type="button"
+              onClick={() => setEditItem(null)}
+              className="btn w-full"
+            >
+              Close
+            </button>
+          </form>
+        </dialog>
+      )}
     </div>
   );
 };
 
-export default EmployeeWorkSheet;
+export default WorkSheet;

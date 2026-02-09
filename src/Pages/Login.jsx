@@ -1,19 +1,22 @@
 // @flow strict
 import * as React from "react";
 import { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router";
+import { useNavigate, Link, useLocation } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useForm } from "react-hook-form";
 
 import { auth } from "../../Firebase.config";
-import { AuthContext } from "../Contexts/AuthContext/AuthProvider";
+
 import PageTitle from "../Shared/PageTitle";
+import AuthContext from "../Contexts/AuthContext/AuthContext";
 
 function Login() {
   const { signIn } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location=useLocation();
+  const from=location.state?.from || "/";
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -26,7 +29,7 @@ function Login() {
   const onSubmit = async (data) => {
     try {
       await signIn(data.email, data.password);
-      navigate("/");
+      navigate(from);
     } catch (error) {
       alert(error.message);
     }
@@ -37,7 +40,7 @@ function Login() {
   const handleLoginWithGoogle = async () => {
     try {
       await signInWithPopup(auth, provider);
-      navigate("/");
+      navigate(from);
     } catch (error) {
       console.log(error);
       alert("Google login failed");
@@ -45,7 +48,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4">
+    <div className="min-h-screen flex justify-center items-center bg-linear-to-b from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <PageTitle title="Login" />
 
       <div className="bg-white dark:bg-gray-900 shadow-2xl rounded-3xl w-full max-w-md p-8">

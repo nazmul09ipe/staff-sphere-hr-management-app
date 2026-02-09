@@ -4,12 +4,13 @@ import { useNavigate, useLocation } from "react-router";
 import { GoSun } from "react-icons/go";
 import { FaMoon } from "react-icons/fa";
 import { IoHomeOutline, IoMenu, IoClose } from "react-icons/io5";
-import { AuthContext } from "../../Contexts/AuthContext/AuthProvider";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
 
 import logo from "../../assets/logo.png";
+import AuthContext from "../../Contexts/AuthContext/AuthContext";
 
 /* --------------------------------------------------------
    SMOOTH UNDERLINE VARIANTS
@@ -17,7 +18,7 @@ import logo from "../../assets/logo.png";
 const underlineVariants = {
   initial: { scaleX: 0, opacity: 0, originX: 0 },
   hover: { scaleX: 1, opacity: 1, originX: 0, transition: { duration: 0.35 } },
-  active: { scaleX: 1, opacity: 1 }
+  active: { scaleX: 1, opacity: 1 },
 };
 
 const LinkUnderline = ({ children, isActive, onClick }) => (
@@ -90,14 +91,6 @@ const Navbar = () => {
     navigate("/auth/login");
   };
 
-  /* -------------------- ROLE-WISE DASHBOARD PATH -------------------- */
-  const getDashboardPath = () => {
-    if (role === "employee") return "/dashboard/work-sheet";
-    if (role === "hr") return "/dashboard/employee-list";
-    if (role === "admin") return "/dashboard/all-employee-list";
-    return "/dashboard";
-  };
-
   /* ============================================================
         FINAL NAVBAR UI
   ============================================================ */
@@ -111,9 +104,11 @@ const Navbar = () => {
         border border-gray-200/50 dark:border-gray-700/50"
     >
       <div className="flex justify-between items-center h-24 px-4 md:px-8">
-
         {/* LOGO */}
-        <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate("/")}>
+        <div
+          className="flex items-center gap-4 cursor-pointer"
+          onClick={() => navigate("/")}
+        >
           <img
             src={logo}
             alt="NC Group Logo"
@@ -123,38 +118,39 @@ const Navbar = () => {
             <h1 className="font-bold text-3xl md:text-4xl text-primary tracking-wide">
               NC Group
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 -mt-1">
-              Where Quality Meets Precision
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Crafting Quality with Commitment
             </p>
           </div>
         </div>
 
         {/* DESKTOP NAV */}
         <div className="hidden md:flex gap-10 items-center">
-
           <LinkUnderline isActive={isActive("/")} onClick={() => navigate("/")}>
             <span className="flex items-center gap-2">
               <IoHomeOutline size={22} /> Home
             </span>
           </LinkUnderline>
 
-          <LinkUnderline isActive={isActive("/contact")} onClick={() => navigate("/contact")}>
+          <LinkUnderline
+            isActive={isActive("/contact")}
+            onClick={() => navigate("/contact")}
+          >
             Contact
           </LinkUnderline>
 
-          {user && role && (
+          {user && (
             <LinkUnderline
               isActive={location.pathname.startsWith("/dashboard")}
-              onClick={() => navigate(getDashboardPath())}
+              onClick={() => navigate("/dashboard")}
             >
-              {role.charAt(0).toUpperCase() + role.slice(1)} Dashboard
+              Dashboard
             </LinkUnderline>
           )}
         </div>
 
         {/* RIGHT SIDE */}
         <div className="flex items-center gap-4 md:gap-6">
-
           {/* Theme Toggle */}
           <button
             onClick={() => setTheme(!theme)}
@@ -228,20 +224,26 @@ const Navbar = () => {
             className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 
             py-5 px-6 space-y-5"
           >
-            <LinkUnderline isActive={isActive("/")} onClick={() => navigate("/")}>
+            <LinkUnderline
+              isActive={isActive("/")}
+              onClick={() => navigate("/")}
+            >
               Home
             </LinkUnderline>
 
-            <LinkUnderline isActive={isActive("/contact")} onClick={() => navigate("/contact")}>
+            <LinkUnderline
+              isActive={isActive("/contact")}
+              onClick={() => navigate("/contact")}
+            >
               Contact
             </LinkUnderline>
 
-            {user && role && (
+            {user && (
               <LinkUnderline
                 isActive={location.pathname.startsWith("/dashboard")}
-                onClick={() => navigate(getDashboardPath())}
+                onClick={() => navigate("/dashboard")}
               >
-                {role.charAt(0).toUpperCase() + role.slice(1)} Dashboard
+                Dashboard
               </LinkUnderline>
             )}
           </motion.div>

@@ -1,91 +1,49 @@
-// src/Pages/Dashboard/EmployeePaymentHistory.jsx
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../Contexts/AuthContext/AuthProvider";
-import axios from "axios";
+import { useContext } from "react";
+import { useQuery } from "@tanstack/react-query";
+import AuthContext from "../../Contexts/AuthContext/AuthContext";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const EmployeePaymentHistory = () => {
-  const { user, token } = useContext(AuthContext);
-  const [payments, setPayments] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const { user } = useContext(AuthContext);
+  const axiosSecure = useAxiosSecure();
 
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
-
-  const fetchPayments = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/payroll`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // Filter only current user's records
-      const userPayments = res.data.filter(
-        (p) => p.employeeId === user.uid
-      );
-
-      // Sort by year & month ascending
-      userPayments.sort(
-        (a, b) =>
-          new Date(a.year, a.month - 1) - new Date(b.year, b.month - 1)
-      );
-
-      setPayments(userPayments);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    if (user && token) fetchPayments();
-  }, [user, token]);
-
-  // Pagination
-  const paginatedPayments = payments.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-  const totalPages = Math.ceil(payments.length / itemsPerPage);
+  const { data: payments = [] } = useQuery({
+    queryKey: ["payments", user?.email],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/payments?email=${user.email}`);
+      return res.data;
+    },
+  });
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Payment History</h2>
+    <div className="bg-slate-100 p-6 rounded-xl">
 
-      <table className="min-w-full border border-collapse">
-        <thead>
-          <tr>
-            <th className="border px-3 py-2">Month</th>
-            <th className="border px-3 py-2">Year</th>
-            <th className="border px-3 py-2">Amount</th>
-            <th className="border px-3 py-2">Transaction Id</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedPayments.map((p) => (
-            <tr key={p._id}>
-              <td className="border px-3 py-2">{p.month}</td>
-              <td className="border px-3 py-2">{p.year}</td>
-              <td className="border px-3 py-2">${p.amount}</td>
-              <td className="border px-3 py-2">{p.transactionId || "-"}</td>
+      <h2 className="text-2xl font-semibold mb-4">Payment History</h2>
+
+      <div className="overflow-x-auto bg-white rounded-xl shadow">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Year</th>
+              <th>Amount</th>
+              <th>Transaction ID</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex gap-2 mt-4">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              className={`px-3 py-1 border rounded ${
-                page === currentPage ? "bg-blue-500 text-white" : ""
-              }`}
-              onClick={() => setCurrentPage(page)}
-            >
-              {page}
-            </button>
-          ))}
-        </div>
-      )}
+          <tbody>
+            {payments.map((pay) => (
+              <tr key={pay._id}>
+                <td>{pay.month}</td>
+                <td>{pay.year}</td>
+                <td>${pay.amount}</td>
+                <td>{pay.transactionId}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   );
 };

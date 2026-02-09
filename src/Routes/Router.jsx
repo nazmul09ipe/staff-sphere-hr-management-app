@@ -5,7 +5,6 @@ import { createBrowserRouter } from "react-router";
 import HomeLayout from "../Layouts/HomeLayout/HomeLayout";
 import AuthLayout from "../Layouts/AuthLayout/AuthLayout";
 
-
 // Pages
 import Home from "../Pages/Home/Home";
 import Contact from "../Pages/Contact";
@@ -14,6 +13,14 @@ import Login from "../Pages/Login";
 import Register from "../Pages/Register";
 
 import ForgetPassword from "../Pages/ForgetPassword";
+import PrivateRoute from "../Components/PrivateRoute";
+import DashboardLayout from "../Layouts/DashboardLayout/DashboardLayout";
+import DashboardHome from "../Pages/Dashboard/DashboardHome";
+import EmployeeWorkSheet from "../Pages/Dashboard/EmployeeWorkSheet";
+import EmployeePaymentHistory from "../Pages/Dashboard/EmployeePaymentHistory";
+import HrEmployeeList from "../Pages/Dashboard/HrEmployeeList";
+import EmployeeDetails from "../Pages/Dashboard/EmployeeDetails";
+import HrWorkRecords from "../Pages/Dashboard/HrWorkRecords";
 
 const router = createBrowserRouter([
   {
@@ -34,9 +41,25 @@ const router = createBrowserRouter([
       { path: "forgetPassword", element: <ForgetPassword /> },
     ],
   },
-
-  
- 
+  {
+    path: "/dashboard",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      { index: true, element: <DashboardHome /> },
+      { path: "employee-work-sheet", element: <EmployeeWorkSheet /> },
+      { path: "employee-payment-history", element: <EmployeePaymentHistory /> },
+      { path: "hr-employee-list", element: <HrEmployeeList /> },
+      {path: "employee-details/:email",element: <EmployeeDetails />, },
+      {path: "hr-work-records",element: <HrWorkRecords />, },
+        
+        
+     
+    ],
+  },
 ]);
 
 export default router;
