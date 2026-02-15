@@ -47,17 +47,19 @@ const HrEmployeeList = () => {
 
   const onPay = async (data) => {
     const payroll = {
-      employeeId: payUser._id,
-      name: payUser.name,
-      email: payUser.email,
-      salary: payUser.salary,
-      month: data.month,
-      year: data.year,
-      status: "pending",
-      createdAt: new Date(),
-    };
+  employeeId: payUser._id,
+  name: payUser.name,
+  email: payUser.email,
+  salary: payUser.salary,
+  month: data.month,
+  year: data.year,
+  paid: false,
+  createdAt: new Date(),
+};
+
 
     await axiosSecure.post("/payroll", payroll);
+
 
     reset();
     setPayUser(null);

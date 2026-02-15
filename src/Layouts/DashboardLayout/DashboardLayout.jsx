@@ -7,6 +7,7 @@ import {
   FaArrowLeft,
   FaBars,
   FaClipboardList,
+  FaUsersCog,
 } from "react-icons/fa";
 import logoImg from "../../assets/logo.png";
 
@@ -75,6 +76,18 @@ const DashboardLayout = () => {
             <NavLink to="/dashboard/hr-work-records" className={navItem}>
               <FaClipboardList />
               HR Work Records
+            </NavLink>
+            <NavLink
+              to="/dashboard/admin-all-employee-list"
+              className={navItem}
+            >
+              <FaUsersCog />
+              All Employee List
+            </NavLink>
+
+            <NavLink to="/dashboard/admin-payment-approval" className={navItem}>
+              <FaMoneyCheckAlt />
+              Payment Approval
             </NavLink>
           </nav>
 

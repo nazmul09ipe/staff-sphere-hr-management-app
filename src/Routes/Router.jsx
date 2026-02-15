@@ -21,6 +21,8 @@ import EmployeePaymentHistory from "../Pages/Dashboard/EmployeePaymentHistory";
 import HrEmployeeList from "../Pages/Dashboard/HrEmployeeList";
 import EmployeeDetails from "../Pages/Dashboard/EmployeeDetails";
 import HrWorkRecords from "../Pages/Dashboard/HrWorkRecords";
+import AdminAllEmployeeList from "../Pages/Dashboard/AdminAllEmployeeList";
+import AdminPaymentApproval from "../Pages/Dashboard/AdminPaymentApproval";
 
 const router = createBrowserRouter([
   {
@@ -55,6 +57,9 @@ const router = createBrowserRouter([
       { path: "hr-employee-list", element: <HrEmployeeList /> },
       {path: "employee-details/:email",element: <EmployeeDetails />, },
       {path: "hr-work-records",element: <HrWorkRecords />, },
+      {path: "admin-all-employee-list",element: <AdminAllEmployeeList />, },
+      {path: "admin-payment-approval",element: <AdminPaymentApproval />, },
+        
         
         
      

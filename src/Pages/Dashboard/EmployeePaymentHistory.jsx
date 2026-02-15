@@ -7,13 +7,17 @@ const EmployeePaymentHistory = () => {
   const { user } = useContext(AuthContext);
   const axiosSecure = useAxiosSecure();
 
-  const { data: payments = [] } = useQuery({
+  const { data = {}, isLoading } = useQuery({
     queryKey: ["payments", user?.email],
     queryFn: async () => {
       const res = await axiosSecure.get(`/payments?email=${user.email}`);
       return res.data;
     },
   });
+
+  const payments = data.payments || [];
+
+  if (isLoading) return <p className="text-center">Loading...</p>;
 
   return (
     <div className="bg-slate-100 p-6 rounded-xl">
@@ -36,7 +40,7 @@ const EmployeePaymentHistory = () => {
               <tr key={pay._id}>
                 <td>{pay.month}</td>
                 <td>{pay.year}</td>
-                <td>${pay.amount}</td>
+                <td>${pay.salary}</td>
                 <td>{pay.transactionId}</td>
               </tr>
             ))}

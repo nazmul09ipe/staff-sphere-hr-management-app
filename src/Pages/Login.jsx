@@ -13,7 +13,7 @@ import PageTitle from "../Shared/PageTitle";
 import AuthContext from "../Contexts/AuthContext/AuthContext";
 
 function Login() {
-  const { signIn } = useContext(AuthContext);
+  const { signInUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const location=useLocation();
   const from=location.state?.from || "/";
@@ -28,7 +28,7 @@ function Login() {
   // ✅ Email/Password Login
   const onSubmit = async (data) => {
     try {
-      await signIn(data.email, data.password);
+      await signInUser(data.email, data.password);
       navigate(from);
     } catch (error) {
       alert(error.message);
