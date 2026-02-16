@@ -2,6 +2,8 @@ import { Fragment, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Listbox, Transition } from "@headlessui/react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+
 
 const months = [
   "January","February","March","April","May","June",
@@ -54,9 +56,16 @@ const HrWorkRecords = () => {
         {/* EMPLOYEE */}
         <Listbox value={selectedEmployee} onChange={setSelectedEmployee}>
           <div className="relative w-64">
-            <Listbox.Button className="w-full bg-white border rounded-lg px-4 py-2 text-left shadow">
-              {selectedEmployee?.name || "All Employees"}
-            </Listbox.Button>
+            <Listbox.Button className="w-full bg-white border rounded-lg px-4 py-2 text-left shadow relative flex items-center justify-between">
+
+  <span>
+    {selectedEmployee?.name || "All Employees"}
+  </span>
+
+  <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
+
+</Listbox.Button>
+
 
             <Transition as={Fragment}>
               <Listbox.Options className="absolute z-10 w-full bg-white shadow rounded mt-1">

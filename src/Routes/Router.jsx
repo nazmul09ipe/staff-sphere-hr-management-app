@@ -23,6 +23,11 @@ import EmployeeDetails from "../Pages/Dashboard/EmployeeDetails";
 import HrWorkRecords from "../Pages/Dashboard/HrWorkRecords";
 import AdminAllEmployeeList from "../Pages/Dashboard/AdminAllEmployeeList";
 import AdminPaymentApproval from "../Pages/Dashboard/AdminPaymentApproval";
+import HrRoute from "./HrRoute";
+import AdminRoute from './AdminRoute';
+
+
+
 
 const router = createBrowserRouter([
   {
@@ -53,12 +58,12 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardHome /> },
       { path: "employee-work-sheet", element: <EmployeeWorkSheet /> },
-      { path: "employee-payment-history", element: <EmployeePaymentHistory /> },
-      { path: "hr-employee-list", element: <HrEmployeeList /> },
+      { path: "employee-payment-history", element:<EmployeePaymentHistory /> },
+      { path: "hr-employee-list", element: <HrRoute><HrEmployeeList /></HrRoute> },
       {path: "employee-details/:email",element: <EmployeeDetails />, },
-      {path: "hr-work-records",element: <HrWorkRecords />, },
-      {path: "admin-all-employee-list",element: <AdminAllEmployeeList />, },
-      {path: "admin-payment-approval",element: <AdminPaymentApproval />, },
+      {path: "hr-work-records",element: <HrRoute><HrWorkRecords /></HrRoute>, },
+      {path: "admin-all-employee-list",element: <AdminRoute><AdminAllEmployeeList /></AdminRoute>, },
+      {path: "admin-payment-approval",element: <AdminRoute><AdminPaymentApproval /></AdminRoute>, },
         
         
         

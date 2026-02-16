@@ -1,27 +1,61 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AuthContext from "../../Contexts/AuthContext/AuthContext";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const EmployeePaymentHistory = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
   const axiosSecure = useAxiosSecure();
 
-  const { data = {}, isLoading } = useQuery({
+  // Wait for user to exist before querying
+  const {
+    data = {},
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["payments", user?.email],
+    enabled: !!user?.email,
     queryFn: async () => {
+      const email = user.email.toLowerCase(); // normalize
+      console.log("Fetching payments for:", email);
       const res = await axiosSecure.get(`/payments?email=${user.email}`);
+      console.log("Payments data:", res.data);
       return res.data;
     },
   });
 
   const payments = data.payments || [];
 
-  if (isLoading) return <p className="text-center">Loading...</p>;
+  // Loading states
+  if (authLoading || isLoading) {
+    return (
+      <p className="text-center py-10 text-gray-500">
+        Loading payment history...
+      </p>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <p className="text-center py-10 text-red-500">
+        Error fetching payments: {error.message}
+      </p>
+    );
+  }
+
+  // No payments
+  if (payments.length === 0) {
+    return (
+      <p className="text-center py-10 text-gray-500">
+        No payment records found.
+      </p>
+    );
+  }
 
   return (
-    <div className="bg-slate-100 p-6 rounded-xl">
-
+    <div className="bg-slate-100 p-6 rounded-xl min-h-screen">
       <h2 className="text-2xl font-semibold mb-4">Payment History</h2>
 
       <div className="overflow-x-auto bg-white rounded-xl shadow">
@@ -38,7 +72,7 @@ const EmployeePaymentHistory = () => {
           <tbody>
             {payments.map((pay) => (
               <tr key={pay._id}>
-                <td>{pay.month}</td>
+                <td>{pay.month.charAt(0).toUpperCase() + pay.month.slice(1)}</td>
                 <td>{pay.year}</td>
                 <td>${pay.salary}</td>
                 <td>{pay.transactionId}</td>
@@ -47,7 +81,6 @@ const EmployeePaymentHistory = () => {
           </tbody>
         </table>
       </div>
-
     </div>
   );
 };
