@@ -119,13 +119,7 @@ const DashboardLayout = () => {
                   <FaMoneyCheckAlt /> Payment Approval
                 </NavLink>
 
-                {/* ADMIN PAYMENT HISTORY */}
-                <NavLink
-                  to="/dashboard/employee-payment-history"
-                  className={navItem}
-                >
-                  <FaMoneyCheckAlt /> Payment History
-                </NavLink>
+                
               </>
             )}
           </nav>

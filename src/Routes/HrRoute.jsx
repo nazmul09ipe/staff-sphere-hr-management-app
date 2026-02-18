@@ -1,23 +1,30 @@
-import React, { useContext } from 'react';
+import { Navigate, useLocation } from "react-router";
+import { useContext } from "react";
+import AuthContext from "../Contexts/AuthContext/AuthContext";
+import useRole from "../Hooks/useRole";
 
-import Loading from './../Components/Loading';
-import AuthContext from '../Contexts/AuthContext/AuthContext';
-import useRole from '../Hooks/useRole';
-import Forbidden from '../Pages/Forbidden';
+const HRRoute = ({ children }) => {
+  const { user, loading } = useContext(AuthContext);
+  const { role, roleLoading } = useRole();
+  const location = useLocation();
 
-const HrRoute = ({ children }) => {
-    const { loading, user } = useContext(AuthContext);
-    const { role, roleLoading } = useRole()
+  // ⏳ Wait for auth + role
+  if (loading || roleLoading) {
+    return <p className="text-center mt-10">Checking access...</p>;
+  }
 
-    if (loading || !user || roleLoading) {
-        return <Loading></Loading>
-    }
+  // 🔐 Not logged in
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-    if (role !== 'hr') {
-        return <Forbidden></Forbidden>
-    }
+  // 🚫 Not HR
+  if (role !== "hr") {
+    return <Navigate to="/forbidden" replace />;
+  }
 
-    return children;
+  // ✅ Allowed
+  return children;
 };
 
-export default HrRoute;
+export default HRRoute;

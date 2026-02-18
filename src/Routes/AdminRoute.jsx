@@ -1,24 +1,26 @@
-import React, { useContext } from 'react';
-
-
-import AuthContext from '../Contexts/AuthContext/AuthContext';
-import useRole from '../Hooks/useRole';
-import Forbidden from '../Pages/Forbidden';
-import Loading from './../Components/Loading';
+import { Navigate, useLocation } from "react-router";
+import { useContext } from "react";
+import AuthContext from "../Contexts/AuthContext/AuthContext";
+import useRole from "../Hooks/useRole";
 
 const AdminRoute = ({ children }) => {
-    const { loading, user } = useContext(AuthContext);
-    const { role, roleLoading } = useRole()
+  const { user, loading } = useContext(AuthContext);
+  const { role, roleLoading } = useRole();
+  const location = useLocation();
 
-    if (loading || !user || roleLoading) {
-        return <Loading></Loading>
-    }
+  if (loading || roleLoading) {
+    return <p className="text-center mt-10">Checking access...</p>;
+  }
 
-    if (role !== 'admin') {
-        return <Forbidden></Forbidden>
-    }
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-    return children;
+  if (role !== "admin") {
+    return <Navigate to="/forbidden" replace />;
+  }
+
+  return children;
 };
 
 export default AdminRoute;

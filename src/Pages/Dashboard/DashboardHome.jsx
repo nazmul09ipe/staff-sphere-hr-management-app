@@ -2,11 +2,18 @@ import React, { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AuthContext from "../../Contexts/AuthContext/AuthContext";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import { FaUsers, FaMoneyCheck, FaClipboardList, FaFileAlt } from "react-icons/fa";
+import {
+  FaUsers,
+  FaMoneyCheck,
+  FaClipboardList,
+  FaFileAlt,
+} from "react-icons/fa";
+import useRole from "../../Hooks/useRole";
 
 const DashboardHome = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
   const axiosSecure = useAxiosSecure();
+  const { role, roleLoading } = useRole();
 
   // Fetch users count (for admin/HR)
   const { data: usersData = {}, isLoading: usersLoading } = useQuery({
@@ -20,19 +27,22 @@ const DashboardHome = () => {
 
   // Fetch payments
   const { data: paymentsData = {}, isLoading: paymentsLoading } = useQuery({
-    queryKey: ["payments", user?.email],
-    enabled: !!user?.email,
+    queryKey: ["payments", user?.email, role], // ✅ include role
+    enabled: !!user?.email && !!role, // ✅ wait for role
     queryFn: async () => {
       const endpoint =
-        user.role === "admin" ? "/admin/payroll" : `/payments?email=${user.email}`;
+        role === "admin" ? "/admin/payroll" : `/payments?email=${user.email}`;
+
       const res = await axiosSecure.get(endpoint);
       return res.data;
     },
   });
 
-  if (authLoading || usersLoading || paymentsLoading) {
+  if (authLoading || roleLoading || usersLoading || paymentsLoading) {
     return (
-      <p className="text-center py-10 text-gray-500">Loading dashboard data...</p>
+      <p className="text-center py-10 text-gray-500">
+        Loading dashboard data...
+      </p>
     );
   }
 
@@ -46,7 +56,9 @@ const DashboardHome = () => {
 
   return (
     <div className="bg-slate-100 min-h-screen p-6">
-      <h2 className="text-3xl font-bold mb-6">Welcome, {user?.displayName || user?.email}</h2>
+      <h2 className="text-3xl font-bold mb-6">
+        Welcome, {user?.displayName || user?.email}
+      </h2>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -83,7 +95,9 @@ const DashboardHome = () => {
             <FaFileAlt className="text-4xl text-yellow-500" />
             <div>
               <p className="text-gray-500">Your Work Summary</p>
-              <p className="text-2xl font-semibold">{payments.length} Payments</p>
+              <p className="text-2xl font-semibold">
+                {payments.length} Payments
+              </p>
             </div>
           </div>
         )}
@@ -93,7 +107,9 @@ const DashboardHome = () => {
       <div className="bg-white p-6 rounded-xl shadow overflow-x-auto">
         <h3 className="text-xl font-semibold mb-4">Last 5 Payments</h3>
         {payments.length === 0 ? (
-          <p className="text-gray-500 text-center py-6">No payment records found.</p>
+          <p className="text-gray-500 text-center py-6">
+            No payment records found.
+          </p>
         ) : (
           <table className="table w-full">
             <thead>
