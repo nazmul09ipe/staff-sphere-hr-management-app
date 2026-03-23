@@ -37,7 +37,7 @@ const products = [
 
 const OurProducts = () => {
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-900 mb-20">
+    <section id="our-products" className="py-16 bg-gray-50 dark:bg-gray-900 mb-20">
       <div className="max-w-7xl mx-auto px-5">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-12">
           Our Products

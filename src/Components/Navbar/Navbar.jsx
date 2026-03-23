@@ -1,4 +1,3 @@
-// Navbar.jsx
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { GoSun } from "react-icons/go";
@@ -12,39 +11,41 @@ import "react-tooltip/dist/react-tooltip.css";
 import logo from "../../assets/logo.png";
 import AuthContext from "../../Contexts/AuthContext/AuthContext";
 
-/* --------------------------------------------------------
-   SMOOTH UNDERLINE VARIANTS
---------------------------------------------------------- */
 const underlineVariants = {
   initial: { scaleX: 0, opacity: 0, originX: 0 },
   hover: { scaleX: 1, opacity: 1, originX: 0, transition: { duration: 0.35 } },
   active: { scaleX: 1, opacity: 1 },
 };
 
+const centerUnderlineVariants = {
+  initial: { scaleX: 0, originX: 0.5, opacity: 0 }, // start from center
+  hover: { scaleX: 1, originX: 0.5, opacity: 1, transition: { duration: 0.35, ease: "easeOut" } },
+  active: { scaleX: 1, originX: 0.5, opacity: 1 },
+};
+
 const LinkUnderline = ({ children, isActive, onClick }) => (
   <motion.div
     onClick={onClick}
-    className={`cursor-pointer text-lg font-medium relative ${
-      isActive ? "text-primary" : "text-gray-700 dark:text-gray-300"
+    className={`cursor-pointer text-lg font-medium relative transition-colors duration-300 ${
+      isActive
+        ? "text-cyan-200"
+        : "text-white/90 hover:text-white"
     }`}
     whileHover="hover"
     animate={isActive ? "active" : "initial"}
   >
     <motion.span className="inline-block relative pb-1">
       {children}
-
-      {/* Animated underline */}
       <motion.span
-        className="absolute left-0 bottom-0 h-[2px] w-full bg-primary rounded-full"
-        variants={underlineVariants}
+        className={`absolute left-0 bottom-0 h-[2px] w-full rounded-full ${
+          isActive ? "bg-cyan-200" : "bg-white/70"
+        }`}
+        variants={centerUnderlineVariants}
       />
     </motion.span>
   </motion.div>
 );
 
-/* --------------------------------------------------------
-   NAVBAR MAIN
---------------------------------------------------------- */
 const Navbar = () => {
   const { user, role, logOut } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  /* -------------------- THEME -------------------- */
+  // Theme handling
   useEffect(() => {
     const stored = localStorage.getItem("theme") === "dark";
     setTheme(stored);
@@ -74,7 +75,7 @@ const Navbar = () => {
     }
   }, [theme]);
 
-  /* -------------------- CLOSE PROFILE ON OUTSIDE CLICK -------------------- */
+  // Close profile dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -85,23 +86,20 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  /* -------------------- LOGOUT -------------------- */
   const handleLogout = () => {
     logOut();
     navigate("/auth/login");
   };
 
-  /* ============================================================
-        FINAL NAVBAR UI
-  ============================================================ */
   return (
     <motion.nav
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
       className="fixed top-0 left-1/2 -translate-x-1/2 w-11/12 md:w-10/12 z-50
-        rounded-2xl shadow-md bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl
-        border border-gray-200/50 dark:border-gray-700/50"
+        rounded-2xl shadow-lg
+        bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400 dark:from-gray-800 dark:via-gray-900 dark:to-gray-700
+        border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-md"
     >
       <div className="flex justify-between items-center h-24 px-4 md:px-8">
         {/* LOGO */}
@@ -115,10 +113,10 @@ const Navbar = () => {
             className="w-20 h-20 md:w-24 md:h-24 rounded-full object-contain transition-transform hover:scale-110"
           />
           <div>
-            <h1 className="font-bold text-3xl md:text-4xl text-primary tracking-wide">
+            <h1 className="font-bold text-3xl md:text-4xl text-white tracking-wide">
               NC Group
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-white/80 mt-1">
               Crafting Quality with Commitment
             </p>
           </div>
@@ -154,16 +152,16 @@ const Navbar = () => {
           {/* Theme Toggle */}
           <button
             onClick={() => setTheme(!theme)}
-            className="text-2xl p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="text-2xl p-2 bg-white/20 dark:bg-gray-700/40 rounded-full hover:bg-white/40 dark:hover:bg-gray-600/60 transition-colors"
           >
-            {theme ? <GoSun className="text-yellow-400" /> : <FaMoon />}
+            {theme ? <GoSun className="text-yellow-400" /> : <FaMoon className="text-white" />}
           </button>
 
-          {/* Profile OR Login */}
+          {/* Profile / Login */}
           {!user ? (
             <button
               onClick={() => navigate("/auth/login")}
-              className="bg-primary text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-600"
+              className="bg-white/30 text-white font-semibold px-5 py-2 rounded-xl hover:bg-white/60 hover:shadow-lg transition"
             >
               Login
             </button>
@@ -175,7 +173,7 @@ const Navbar = () => {
                 data-tooltip-content={user?.displayName || "User"}
                 onClick={() => setShowProfile(!showProfile)}
                 alt="User"
-                className="w-10 h-10 rounded-full border-2 border-primary cursor-pointer object-cover"
+                className="w-10 h-10 rounded-full border-2 border-white cursor-pointer object-cover transition-transform hover:scale-105"
               />
               <Tooltip id="profile-tip" place="bottom" />
 
@@ -194,7 +192,7 @@ const Navbar = () => {
 
                     <button
                       onClick={handleLogout}
-                      className="w-full bg-primary text-white py-2 rounded-lg font-semibold hover:bg-blue-600"
+                      className="w-full bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400 text-white py-2 rounded-lg font-semibold hover:from-purple-700 hover:via-blue-600 hover:to-cyan-500 transition"
                     >
                       Logout
                     </button>
@@ -207,7 +205,7 @@ const Navbar = () => {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenu(!mobileMenu)}
-            className="md:hidden text-3xl text-gray-700 dark:text-gray-200"
+            className="md:hidden text-3xl text-white/90"
           >
             {mobileMenu ? <IoClose /> : <IoMenu />}
           </button>
@@ -221,8 +219,8 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 
-            py-5 px-6 space-y-5"
+            className="md:hidden bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400 dark:from-gray-800 dark:via-gray-900 dark:to-gray-700
+              border-t border-gray-200/30 dark:border-gray-700/30 py-5 px-6 space-y-5"
           >
             <LinkUnderline
               isActive={isActive("/")}

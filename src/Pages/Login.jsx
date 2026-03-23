@@ -15,8 +15,8 @@ import AuthContext from "../Contexts/AuthContext/AuthContext";
 function Login() {
   const { signInUser } = useContext(AuthContext);
   const navigate = useNavigate();
-  const location=useLocation();
-  const from=location.state?.from || "/";
+  const location = useLocation();
+  const from = location.state?.from || "/";
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -112,7 +112,12 @@ function Login() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+            className="w-full py-3 rounded-xl text-white font-semibold 
+                bg-linear-to-r from-blue-500 via-indigo-500 to-purple-600
+                hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700
+                shadow-lg hover:shadow-xl
+                transition-all duration-300 ease-in-out
+                transform hover:-translate-y-0.5 active:scale-95"
           >
             Login
           </button>
