@@ -2,12 +2,7 @@ import React, { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AuthContext from "../../Contexts/AuthContext/AuthContext";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import {
-  FaUsers,
-  FaMoneyCheck,
-  FaClipboardList,
-  FaFileAlt,
-} from "react-icons/fa";
+import { FaUsers, FaMoneyCheck, FaClipboardList, FaFileAlt } from "react-icons/fa";
 import useRole from "../../Hooks/useRole";
 
 const DashboardHome = () => {
@@ -86,7 +81,9 @@ const DashboardHome = () => {
     payrollLoading
   ) {
     return (
-      <p className="text-center py-10 text-gray-500">Loading dashboard data...</p>
+      <p className="text-center py-10 text-gray-500 dark:text-gray-300 transition-colors duration-300">
+        Loading dashboard data...
+      </p>
     );
   }
 
@@ -101,24 +98,24 @@ const DashboardHome = () => {
   const totalSalaryEarned = payments.reduce((sum, p) => sum + Number(p.salary || 0), 0);
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-purple-50 via-blue-50 to-cyan-50">
+    <div className="min-h-screen p-6 bg-gradient-to-b from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 transition-colors duration-500">
       {/* User Profile */}
-      <div className="flex items-center gap-4 mb-8 bg-white p-5 rounded-xl shadow-lg">
+      <div className="flex items-center gap-4 mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg transition-colors duration-300">
         <img
           src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
           alt="User"
-          className="w-16 h-16 rounded-full object-cover border"
+          className="w-16 h-16 rounded-full object-cover border border-gray-300 dark:border-gray-600"
         />
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">{user?.displayName || "User"}</h2>
-          <p className="text-gray-500 text-sm">{user?.email}</p>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{user?.displayName || "User"}</h2>
+          <p className="text-gray-500 dark:text-gray-300 text-sm">{user?.email}</p>
           <span
             className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full ${
               role === "admin"
-                ? "bg-red-100 text-red-600"
+                ? "bg-red-100 text-red-600 dark:bg-red-800 dark:text-red-400"
                 : role === "hr"
-                ? "bg-purple-100 text-purple-600"
-                : "bg-blue-100 text-blue-600"
+                ? "bg-purple-100 text-purple-600 dark:bg-purple-800 dark:text-purple-400"
+                : "bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-400"
             }`}
           >
             {role?.toUpperCase()}
@@ -129,56 +126,56 @@ const DashboardHome = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {role !== "employee" && (
-          <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-            <FaUsers className="text-4xl text-blue-500" />
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+            <FaUsers className="text-4xl text-blue-500 dark:text-blue-400" />
             <div>
-              <p className="text-gray-500">Total Employees</p>
-              <p className="text-2xl font-semibold text-gray-800">{totalEmployees}</p>
+              <p className="text-gray-500 dark:text-gray-300">Total Employees</p>
+              <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{totalEmployees}</p>
             </div>
           </div>
         )}
 
-        <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-          <FaMoneyCheck className="text-4xl text-green-500" />
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+          <FaMoneyCheck className="text-4xl text-green-500 dark:text-green-400" />
           <div>
-            <p className="text-gray-500">Total Payments</p>
-            <p className="text-2xl font-semibold text-gray-800">{payments.length}</p>
+            <p className="text-gray-500 dark:text-gray-300">Total Payments</p>
+            <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{payments.length}</p>
           </div>
         </div>
 
         {role === "admin" && (
-          <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-            <FaClipboardList className="text-4xl text-red-500" />
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+            <FaClipboardList className="text-4xl text-red-500 dark:text-red-400" />
             <div>
-              <p className="text-gray-500">Pending Approvals</p>
-              <p className="text-2xl font-semibold text-gray-800">{pendingData.length}</p>
+              <p className="text-gray-500 dark:text-gray-300">Pending Approvals</p>
+              <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{pendingData.length}</p>
             </div>
           </div>
         )}
 
         {role === "hr" && (
           <>
-            <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-              <FaClipboardList className="text-4xl text-purple-500" />
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+              <FaClipboardList className="text-4xl text-purple-500 dark:text-purple-400" />
               <div>
-                <p className="text-gray-500">Work Hours ({currentMonth})</p>
-                <p className="text-2xl font-semibold text-gray-800">{totalHours} hrs</p>
+                <p className="text-gray-500 dark:text-gray-300">Work Hours ({currentMonth})</p>
+                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{totalHours} hrs</p>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-              <FaMoneyCheck className="text-4xl text-green-500" />
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+              <FaMoneyCheck className="text-4xl text-green-500 dark:text-green-400" />
               <div>
-                <p className="text-gray-500">Salary Paid</p>
-                <p className="text-2xl font-semibold text-gray-800">{paidCount}</p>
+                <p className="text-gray-500 dark:text-gray-300">Salary Paid</p>
+                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{paidCount}</p>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-              <FaFileAlt className="text-4xl text-red-500" />
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+              <FaFileAlt className="text-4xl text-red-500 dark:text-red-400" />
               <div>
-                <p className="text-gray-500">Pending Salaries</p>
-                <p className="text-2xl font-semibold text-gray-800">{pendingCount}</p>
+                <p className="text-gray-500 dark:text-gray-300">Pending Salaries</p>
+                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{pendingCount}</p>
               </div>
             </div>
           </>
@@ -186,19 +183,19 @@ const DashboardHome = () => {
 
         {role === "employee" && (
           <>
-            <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-              <FaClipboardList className="text-4xl text-blue-500" />
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+              <FaClipboardList className="text-4xl text-blue-500 dark:text-blue-400" />
               <div>
-                <p className="text-gray-500">Work Hours ({currentMonth})</p>
-                <p className="text-2xl font-semibold text-gray-800">{totalWorkHours} hrs</p>
+                <p className="text-gray-500 dark:text-gray-300">Work Hours ({currentMonth})</p>
+                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{totalWorkHours} hrs</p>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg flex items-center gap-4">
-              <FaFileAlt className="text-4xl text-purple-500" />
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
+              <FaFileAlt className="text-4xl text-purple-500 dark:text-purple-400" />
               <div>
-                <p className="text-gray-500">Total Earned</p>
-                <p className="text-2xl font-semibold text-gray-800">${totalSalaryEarned}</p>
+                <p className="text-gray-500 dark:text-gray-300">Total Earned</p>
+                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">${totalSalaryEarned}</p>
               </div>
             </div>
           </>
@@ -206,24 +203,25 @@ const DashboardHome = () => {
       </div>
 
       {/* Last Payments Table */}
-      <div className="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">
-        <h3 className="text-xl font-semibold mb-4 text-gray-800">Last 5 Payments</h3>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg overflow-x-auto transition-colors duration-300">
+        <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Last 5 Payments</h3>
         {payments.length === 0 ? (
-          <p className="text-gray-500 text-center py-6">No payment records found.</p>
+          <p className="text-gray-500 dark:text-gray-300 text-center py-6">No payment records found.</p>
         ) : (
-          <table className="table w-full text-gray-700">
+          <table className="table w-full text-gray-700 dark:text-gray-200">
             <thead>
-              <tr>
-                {role === "admin" && <th>Email</th>}
-                <th>Month</th>
-                <th>Year</th>
-                <th>Amount</th>
-                <th>Transaction ID</th>
+              <tr className="border-b border-gray-300 dark:border-gray-600">
+                {role === "admin" && 
+                <th className="text-gray-700 dark:text-gray-200">Email</th>}
+                <th className="text-gray-700 dark:text-gray-200">Month</th>
+                <th className="text-gray-700 dark:text-gray-200">Year</th>
+                <th className="text-gray-700 dark:text-gray-200">Amount</th>
+                <th className="text-gray-700 dark:text-gray-200">Transaction ID</th>
               </tr>
             </thead>
             <tbody>
               {lastPayments.map((pay) => (
-                <tr key={pay._id || pay.transactionId}>
+                <tr key={pay._id || pay.transactionId} className="border-b border-gray-200 dark:border-gray-700">
                   {role === "admin" && <td>{pay.email}</td>}
                   <td>{pay.month}</td>
                   <td>{pay.year}</td>
@@ -238,17 +236,14 @@ const DashboardHome = () => {
 
       {/* Admin Pending Table */}
       {role === "admin" && (
-        <div className="bg-white p-6 rounded-xl shadow-lg overflow-x-auto mt-8">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            Pending Payment Approvals
-          </h3>
-
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg overflow-x-auto mt-8 transition-colors duration-300">
+          <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Pending Payment Approvals</h3>
           {pendingData.length === 0 ? (
-            <p className="text-gray-500 text-center py-6">No pending approvals 🎉</p>
+            <p className="text-gray-500 dark:text-gray-300 text-center py-6">No pending approvals 🎉</p>
           ) : (
-            <table className="table w-full text-gray-700">
+            <table className="table w-full text-gray-700 dark:text-gray-200">
               <thead>
-                <tr>
+                <tr className="border-b border-gray-300 dark:border-gray-600">
                   <th>Email</th>
                   <th>Month</th>
                   <th>Year</th>
@@ -258,7 +253,7 @@ const DashboardHome = () => {
               </thead>
               <tbody>
                 {pendingData.map((item) => (
-                  <tr key={item._id}>
+                  <tr key={item._id} className="border-b border-gray-200 dark:border-gray-700">
                     <td>{item.email}</td>
                     <td>{item.month}</td>
                     <td>{item.year}</td>
@@ -269,7 +264,7 @@ const DashboardHome = () => {
                           await axiosSecure.patch(`/admin/pay/${item._id}`);
                           refetchPending();
                         }}
-                        className="btn btn-sm btn-success"
+                        className="px-3 py-1 rounded bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700 transition-colors duration-300 text-sm"
                       >
                         Approve & Pay
                       </button>
