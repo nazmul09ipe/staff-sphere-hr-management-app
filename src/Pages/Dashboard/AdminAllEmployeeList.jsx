@@ -113,25 +113,39 @@ const AdminAllEmployeeList = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-2 mt-4">
+      <div className="flex justify-center items-center gap-4 mt-6">
+        {/* Prev Button */}
         <button
-          className="btn btn-sm"
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+      ${
+        page === 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-95"
+      }`}
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           disabled={page === 1}
         >
-          Prev
+          ← Previous
         </button>
 
-        <span>
-          Page {page} of {totalPages}
+        {/* Page Info */}
+        <span className="text-sm font-semibold text-gray-700">
+          Page <span className="text-blue-600">{page}</span> of{" "}
+          <span className="text-blue-600">{totalPages}</span>
         </span>
 
+        {/* Next Button */}
         <button
-          className="btn btn-sm"
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
+      ${
+        page === totalPages
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-95"
+      }`}
           onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
           disabled={page === totalPages}
         >
-          Next
+          Next →
         </button>
       </div>
     </div>

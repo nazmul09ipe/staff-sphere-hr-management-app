@@ -133,7 +133,7 @@ const HrEmployeeList = () => {
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
-          className={`px-4 py-2 rounded-lg border transition
+          className={`px-2 py-2 rounded-lg border transition
       ${
         page === 1
           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -167,7 +167,7 @@ const HrEmployeeList = () => {
         <button
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
-          className={`px-4 py-2 rounded-lg border transition
+          className={`px-2 py-2 rounded-lg border transition
       ${
         page === totalPages
           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
