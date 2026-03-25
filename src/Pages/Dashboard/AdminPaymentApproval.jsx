@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import Swal from "sweetalert2";
+import PaymentModal from "./PaymentModal"; // ✅ IMPORT
 
 const AdminPaymentApproval = () => {
   const axiosSecure = useAxiosSecure();
+  const [selectedPay, setSelectedPay] = useState(null);
 
   // ✅ Pagination state
   const [page, setPage] = useState(1);
   const limit = 8;
 
-  // ✅ Fetch data with pagination
+  // ✅ Fetch data
   const { data = {}, refetch, isLoading } = useQuery({
     queryKey: ["adminPayments", page],
     queryFn: async () => {
@@ -24,35 +25,12 @@ const AdminPaymentApproval = () => {
   const payments = data.payments || [];
   const totalPages = data.totalPages || 1;
 
-  // ✅ Handle payment
-  const handlePay = async (pay) => {
-    const result = await Swal.fire({
-      title: "Confirm Payment?",
-      text: `Pay ${pay.salary} to ${pay.name || pay.email}?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Pay",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await axiosSecure.patch(`/admin/pay/${pay._id}`);
-
-        Swal.fire({
-          icon: "success",
-          title: "Payment Successful!",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
-        refetch(); // ✅ refresh data
-      } catch (error) {
-        Swal.fire("Error", "Payment failed!", "error");
-      }
-    }
+  // ✅ Handle payment click
+  const handlePay = (pay) => {
+    setSelectedPay(pay);
   };
 
-  // ✅ Loading state
+  // ✅ Loading
   if (isLoading) {
     return (
       <p className="text-center py-10 text-gray-500">
@@ -157,6 +135,15 @@ const AdminPaymentApproval = () => {
           Next
         </button>
       </div>
+
+      {/* ✅ ✅ Modal MUST be inside return */}
+      {selectedPay && (
+        <PaymentModal
+          payData={selectedPay}
+          closeModal={() => setSelectedPay(null)}
+          refetch={refetch}
+        />
+      )}
     </div>
   );
 };
