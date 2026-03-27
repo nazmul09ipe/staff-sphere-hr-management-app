@@ -2,7 +2,12 @@ import React, { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AuthContext from "../../Contexts/AuthContext/AuthContext";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import { FaUsers, FaMoneyCheck, FaClipboardList, FaFileAlt } from "react-icons/fa";
+import {
+  FaUsers,
+  FaMoneyCheck,
+  FaClipboardList,
+  FaFileAlt,
+} from "react-icons/fa";
 import useRole from "../../Hooks/useRole";
 
 const DashboardHome = () => {
@@ -14,6 +19,7 @@ const DashboardHome = () => {
   const currentMonth = currentDate.toLocaleString("default", { month: "long" });
   const currentYear = currentDate.getFullYear();
 
+  // ================= USERS =================
   const { data: usersData = {}, isLoading: usersLoading } = useQuery({
     queryKey: ["users-count"],
     enabled: !!user?.email,
@@ -23,53 +29,77 @@ const DashboardHome = () => {
     },
   });
 
+  // ================= PAYMENTS =================
   const { data: paymentsData = {}, isLoading: paymentsLoading } = useQuery({
     queryKey: ["payments", user?.email, role],
     enabled: !!user?.email && !!role,
     queryFn: async () => {
-      const endpoint = role === "admin" ? "/payments" : `/payments?email=${user.email}`;
+      const endpoint =
+        role === "admin" ? "/payments" : `/payments?email=${user.email}`;
       const res = await axiosSecure.get(endpoint);
       return res.data;
     },
   });
 
-  const { data: pendingData = [], isLoading: pendingLoading, refetch: refetchPending } =
-    useQuery({
-      queryKey: ["pending-payments"],
-      enabled: !!user?.email && role === "admin",
-      queryFn: async () => {
-        const res = await axiosSecure.get("/admin/payments");
-        return res.data;
-      },
-    });
-
-  const { data: workData = {}, isLoading: workLoading } = useQuery({
-    queryKey: ["work-summary", currentMonth],
-    enabled: role === "hr",
+  // ================= ADMIN PENDING =================
+  const { data: pendingData = [], isLoading: pendingLoading } = useQuery({
+    queryKey: ["pending-payments"],
+    enabled: role === "admin",
     queryFn: async () => {
-      const res = await axiosSecure.get(`/hr/work-summary?month=${currentMonth}`);
+      const res = await axiosSecure.get("/admin/payments");
       return res.data;
     },
   });
 
+  // ================= EMPLOYEE WORK =================
   const { data: empWorkData = [], isLoading: empWorkLoading } = useQuery({
     queryKey: ["employee-work", user?.email, currentMonth],
     enabled: role === "employee",
     queryFn: async () => {
-      const res = await axiosSecure.get(`/works?email=${user.email}&month=${currentMonth}`);
+      const res = await axiosSecure.get(
+        `/works?email=${user.email}&month=${currentMonth}`,
+      );
       return res.data;
     },
   });
 
-  const { data: payrollData = {}, isLoading: payrollLoading } = useQuery({
-    queryKey: ["hr-payroll", currentMonth, currentYear],
+  // ================= HR WORK =================
+  const { data: workData = {}, isLoading: workLoading } = useQuery({
+    queryKey: ["work-summary", currentMonth],
     enabled: role === "hr",
     queryFn: async () => {
-      const res = await axiosSecure.get(`/admin/payroll?month=${currentMonth}&year=${currentYear}`);
+      const res = await axiosSecure.get(
+        `/hr/work-summary?month=${currentMonth}`,
+      );
       return res.data;
     },
   });
 
+  // ================= SUMMARY (HR + EMPLOYEE) =================
+  const { data: summaryData = {}, isLoading: summaryLoading } = useQuery({
+    queryKey: ["payroll-summary", currentMonth, currentYear],
+    enabled: role === "hr" || role === "employee",
+    queryFn: async () => {
+      const res = await axiosSecure.get(
+        `/hr/payroll-summary?month=${currentMonth}&year=${currentYear}`,
+      );
+      return res.data;
+    },
+  });
+
+  // ================= ADMIN PAYROLL =================
+  const { data: payrollData = {}, isLoading: payrollLoading } = useQuery({
+    queryKey: ["admin-payroll", currentMonth, currentYear],
+    enabled: role === "admin",
+    queryFn: async () => {
+      const res = await axiosSecure.get(
+        `/admin/payroll?month=${currentMonth}&year=${currentYear}`,
+      );
+      return res.data;
+    },
+  });
+
+  // ================= LOADING =================
   if (
     authLoading ||
     roleLoading ||
@@ -78,206 +108,182 @@ const DashboardHome = () => {
     pendingLoading ||
     workLoading ||
     empWorkLoading ||
+    summaryLoading ||
     payrollLoading
   ) {
     return (
-      <p className="text-center py-10 text-gray-500 dark:text-gray-300 transition-colors duration-300">
+      <p className="text-center py-10 text-gray-500 dark:text-gray-300">
         Loading dashboard data...
       </p>
     );
   }
 
-  const payments = Array.isArray(paymentsData) ? paymentsData : paymentsData?.payments || [];
+  // ================= DATA =================
+  const payments = paymentsData?.payments || [];
   const totalEmployees = usersData.total || 0;
-  const lastPayments = payments.slice(0, 5);
-  const totalHours = workData.totalHours || 0;
-  const payrollList = payrollData.payments || [];
-  const paidCount = payrollList.filter((p) => p.paid).length;
-  const pendingCount = payrollList.filter((p) => !p.paid).length;
-  const totalWorkHours = empWorkData.reduce((sum, w) => sum + Number(w.hours || 0), 0);
-  const totalSalaryEarned = payments.reduce((sum, p) => sum + Number(p.salary || 0), 0);
 
+  const totalHours = workData.totalHours || 0;
+  const totalWorkHours = empWorkData.reduce(
+    (sum, w) => sum + Number(w.hours || 0),
+    0,
+  );
+
+  // HR / Employee
+  const totalEmployeesPaid = summaryData.totalEmployeesPaid || 0;
+  const totalEmployeesToBePaid = summaryData.totalPending || 0;
+  const totalPaidAmountHR = summaryData.totalPaidAmount || 0;
+
+  // ADMIN CALCULATION
+  const payrollList = payrollData?.payments || [];
+
+ const paidList = payrollList.filter(
+  (p) => p.paid === true || p.paid === "true" || p.status === "paid"
+);
+
+const pendingList = payrollList.filter(
+  (p) => p.paid !== true && p.paid !== "true" && p.status !== "paid"
+);
+
+  const totalPaidEmployeesAdmin = paidList.length;
+  
+
+  const totalPaidAmountAdmin = paidList.reduce(
+    (sum, p) => sum + Number(p.salary || 0),
+    0,
+  );
+
+  const totalPendingAmount = pendingList.reduce(
+    (sum, p) => sum + Number(p.salary || 0),
+    0,
+  );
+
+  const totalPayrollAmount = totalPaidAmountAdmin + totalPendingAmount;
+
+  // ================= UI =================
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 transition-colors duration-500">
-      {/* User Profile */}
-      <div className="flex items-center gap-4 mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg transition-colors duration-300">
-        <img
-          src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
-          alt="User"
-          className="w-16 h-16 rounded-full object-cover border border-gray-300 dark:border-gray-600"
-        />
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{user?.displayName || "User"}</h2>
-          <p className="text-gray-500 dark:text-gray-300 text-sm">{user?.email}</p>
-          <span
-            className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full ${
-              role === "admin"
-                ? "bg-red-100 text-red-600 dark:bg-red-800 dark:text-red-400"
-                : role === "hr"
-                ? "bg-purple-100 text-purple-600 dark:bg-purple-800 dark:text-purple-400"
-                : "bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-400"
-            }`}
-          >
-            {role?.toUpperCase()}
-          </span>
+    <div className="min-h-screen p-6 bg-gradient-to-b from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
+      {/* PROFILE + DATE */}
+      <div className="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+        <div className="flex items-center gap-4">
+          <img
+            src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
+            className="w-16 h-16 rounded-full"
+          />
+          <div>
+            <h2 className="text-xl font-bold">{user?.displayName}</h2>
+            <p>{user?.email}</p>
+            <span className="text-xs bg-blue-100 px-2 py-1 rounded">
+              {role}
+            </span>
+          </div>
+        </div>
+
+        <div className="text-right">
+          <p>Today</p>
+          <p className="text-xl font-bold">
+            {currentDate.toLocaleDateString()}
+          </p>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* SUMMARY */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
         {role !== "employee" && (
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-            <FaUsers className="text-4xl text-blue-500 dark:text-blue-400" />
+          <div className="bg-white p-6 rounded-xl shadow flex gap-4">
+            <FaUsers className="text-3xl text-blue-500" />
             <div>
-              <p className="text-gray-500 dark:text-gray-300">Total Employees</p>
-              <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{totalEmployees}</p>
+              <p>Total Employees</p>
+              <p className="text-xl font-bold">{totalEmployees}</p>
             </div>
           </div>
         )}
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-          <FaMoneyCheck className="text-4xl text-green-500 dark:text-green-400" />
+        <div className="bg-white p-6 rounded-xl shadow flex gap-4">
+          <FaMoneyCheck className="text-3xl text-green-500" />
           <div>
-            <p className="text-gray-500 dark:text-gray-300">Total Payments</p>
-            <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{payments.length}</p>
+            <p>Total Payments</p>
+            <p className="text-xl font-bold">{payments.length}</p>
           </div>
         </div>
 
         {role === "admin" && (
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-            <FaClipboardList className="text-4xl text-red-500 dark:text-red-400" />
+          <div className="bg-white p-6 rounded-xl shadow flex gap-4">
+            <FaClipboardList className="text-3xl text-red-500" />
             <div>
-              <p className="text-gray-500 dark:text-gray-300">Pending Approvals</p>
-              <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{pendingData.length}</p>
+              <p>Pending Approvals</p>
+              <p className="text-xl font-bold">{pendingData.length}</p>
             </div>
           </div>
         )}
-
-        {role === "hr" && (
-          <>
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-              <FaClipboardList className="text-4xl text-purple-500 dark:text-purple-400" />
-              <div>
-                <p className="text-gray-500 dark:text-gray-300">Work Hours ({currentMonth})</p>
-                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{totalHours} hrs</p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-              <FaMoneyCheck className="text-4xl text-green-500 dark:text-green-400" />
-              <div>
-                <p className="text-gray-500 dark:text-gray-300">Salary Paid</p>
-                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{paidCount}</p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-              <FaFileAlt className="text-4xl text-red-500 dark:text-red-400" />
-              <div>
-                <p className="text-gray-500 dark:text-gray-300">Pending Salaries</p>
-                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{pendingCount}</p>
-              </div>
-            </div>
-          </>
-        )}
-
-        {role === "employee" && (
-          <>
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-              <FaClipboardList className="text-4xl text-blue-500 dark:text-blue-400" />
-              <div>
-                <p className="text-gray-500 dark:text-gray-300">Work Hours ({currentMonth})</p>
-                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">{totalWorkHours} hrs</p>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg flex items-center gap-4 transition-colors duration-300">
-              <FaFileAlt className="text-4xl text-purple-500 dark:text-purple-400" />
-              <div>
-                <p className="text-gray-500 dark:text-gray-300">Total Earned</p>
-                <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">${totalSalaryEarned}</p>
-              </div>
-            </div>
-          </>
-        )}
       </div>
 
-      {/* Last Payments Table */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg overflow-x-auto transition-colors duration-300">
-        <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Last 5 Payments</h3>
-        {payments.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-300 text-center py-6">No payment records found.</p>
-        ) : (
-          <table className="table w-full text-gray-700 dark:text-gray-200">
-            <thead>
-              <tr className="border-b border-gray-300 dark:border-gray-600">
-                {role === "admin" && 
-                <th className="text-gray-700 dark:text-gray-200">Email</th>}
-                <th className="text-gray-700 dark:text-gray-200">Month</th>
-                <th className="text-gray-700 dark:text-gray-200">Year</th>
-                <th className="text-gray-700 dark:text-gray-200">Amount</th>
-                <th className="text-gray-700 dark:text-gray-200">Transaction ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lastPayments.map((pay) => (
-                <tr key={pay._id || pay.transactionId} className="border-b border-gray-200 dark:border-gray-700">
-                  {role === "admin" && <td>{pay.email}</td>}
-                  <td>{pay.month}</td>
-                  <td>{pay.year}</td>
-                  <td>${pay.salary}</td>
-                  <td>{pay.transactionId}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      {/* Admin Pending Table */}
-      {role === "admin" && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg overflow-x-auto mt-8 transition-colors duration-300">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Pending Payment Approvals</h3>
-          {pendingData.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-300 text-center py-6">No pending approvals 🎉</p>
-          ) : (
-            <table className="table w-full text-gray-700 dark:text-gray-200">
-              <thead>
-                <tr className="border-b border-gray-300 dark:border-gray-600">
-                  <th>Email</th>
-                  <th>Month</th>
-                  <th>Year</th>
-                  <th>Salary</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingData.map((item) => (
-                  <tr key={item._id} className="border-b border-gray-200 dark:border-gray-700">
-                    <td>{item.email}</td>
-                    <td>{item.month}</td>
-                    <td>{item.year}</td>
-                    <td>${item.salary}</td>
-                    <td>
-                      <button
-                        onClick={async () => {
-                          await axiosSecure.patch(`/admin/pay/${item._id}`);
-                          refetchPending();
-                        }}
-                        className="px-3 py-1 rounded bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700 transition-colors duration-300 text-sm"
-                      >
-                        Approve & Pay
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+      {/* HR / EMPLOYEE */}
+      {(role === "hr" || role === "employee") && (
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <Card
+            title="Work Hours"
+            value={role === "hr" ? totalHours : totalWorkHours}
+          />
+          <Card title="Employees Paid" value={totalEmployeesPaid} />
+          <Card title="Pending Salaries" value={totalEmployeesToBePaid} />
+          <Card title="Paid Amount" value={`$${totalPaidAmountHR}`} />
         </div>
+      )}
+
+      {/* ADMIN */}
+      {role === "admin" && (
+        <>
+          <div className="grid md:grid-cols-4 gap-6 mb-6">
+            <Card title="Total Payroll" value={`$${totalPayrollAmount}`} />
+            <Card title="Paid Employees" value={totalPaidEmployeesAdmin} />
+            <Card title="Paid Amount" value={`$${totalPaidAmountAdmin}`} />
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow">
+            <h3 className="text-lg font-bold mb-4 text-gray-800">
+              Pending Approvals
+            </h3>
+
+            {pendingData.length === 0 ? (
+              <p className="text-gray-500">No pending approvals</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-2 text-left border-b">Email</th>
+                      <th className="px-4 py-2 text-left border-b">Month</th>
+                      <th className="px-4 py-2 text-left border-b">Year</th>
+                      <th className="px-4 py-2 text-left border-b">Salary</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {pendingData.map((item) => (
+                      <tr key={item._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 border-b">{item.email}</td>
+                        <td className="px-4 py-2 border-b">{item.month}</td>
+                        <td className="px-4 py-2 border-b">{item.year}</td>
+                        <td className="px-4 py-2 border-b">${item.salary}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
 };
+
+// reusable card
+const Card = ({ title, value }) => (
+  <div className="bg-white p-6 rounded-xl shadow">
+    <p>{title}</p>
+    <p className="text-xl font-bold">{value}</p>
+  </div>
+);
 
 export default DashboardHome;

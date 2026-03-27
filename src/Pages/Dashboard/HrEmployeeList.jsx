@@ -9,14 +9,24 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import { Link } from "react-router";
+import Swal from "sweetalert2";
+
+const months = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
 
 const HrEmployeeList = () => {
   const axiosSecure = useAxiosSecure();
   const [payUser, setPayUser] = useState(null);
-  const { register, handleSubmit, reset } = useForm();
+
+  const { register, handleSubmit, reset, watch } = useForm();
 
   const [page, setPage] = useState(1);
   const limit = 8;
+
+  const selectedYear = watch("year");
+  const selectedMonth = watch("month");
 
   /* ================= FETCH EMPLOYEES ================= */
 
@@ -24,7 +34,7 @@ const HrEmployeeList = () => {
     queryKey: ["employees", page],
     queryFn: async () => {
       const res = await axiosSecure.get(
-        `/users?role=employee&page=${page}&limit=${limit}`,
+        `/users?role=employee&page=${page}&limit=${limit}`
       );
       return res.data;
     },
@@ -33,36 +43,108 @@ const HrEmployeeList = () => {
   const employees = data.employees || [];
   const totalPages = Math.ceil((data.total || 0) / limit);
 
+  /* ================= FETCH PAYROLL HISTORY ================= */
+
+  const { data: payrollHistory = [] } = useQuery({
+    queryKey: ["payroll-history", payUser?._id],
+    enabled: !!payUser,
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/payroll/${payUser._id}`);
+      return res.data;
+    },
+  });
+
+  /* ================= FILTER PAID MONTHS ================= */
+
+  const paidMonths = payrollHistory
+    .filter((p) => p.year === Number(selectedYear))
+    .map((p) => p.month);
+
+  /* ================= DUPLICATE CHECK ================= */
+
+  const isDuplicate = payrollHistory.some(
+    (p) =>
+      p.month === selectedMonth &&
+      p.year === Number(selectedYear)
+  );
+
   /* ================= TOGGLE VERIFY ================= */
 
   const toggleVerify = async (user) => {
-    await axiosSecure.patch(`/users/verify/${user._id}`, {
-      isVerified: !user.isVerified,
+    const action = user.isVerified ? "Unverify" : "Verify";
+
+    const result = await Swal.fire({
+      title: `${action} Employee?`,
+      text: `Are you sure you want to ${action.toLowerCase()} this employee?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${action}`,
     });
 
-    refetch();
+    if (result.isConfirmed) {
+      await axiosSecure.patch(`/users/verify/${user._id}`, {
+        isVerified: !user.isVerified,
+      });
+
+      refetch();
+
+      Swal.fire({
+        icon: "success",
+        title: `${action}d!`,
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    }
   };
 
   /* ================= PAY SUBMIT ================= */
 
-  const onPay = async (data) => {
+  const onPay = async (formData) => {
+    // 🔒 extra safety
+    const duplicateNow = payrollHistory.some(
+      (p) =>
+        p.month === formData.month &&
+        p.year === Number(formData.year)
+    );
+
+    if (duplicateNow) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Duplicate!",
+        text: "Salary already requested for this month & year",
+      });
+    }
+
     const payroll = {
-  employeeId: payUser._id,
-  name: payUser.name,
-  email: payUser.email,
-  salary: payUser.salary,
-  month: data.month,
-  year: data.year,
-  paid: false,
-  createdAt: new Date(),
-};
+      employeeId: payUser._id,
+      name: payUser.name,
+      email: payUser.email,
+      salary: payUser.salary,
+      month: formData.month,
+      year: Number(formData.year),
+      paid: false,
+      createdAt: new Date(),
+    };
 
+    try {
+      await axiosSecure.post("/payroll", payroll);
 
-    await axiosSecure.post("/payroll", payroll);
+      Swal.fire({
+        icon: "success",
+        title: "Request Sent!",
+        text: "Salary payment request sent to admin.",
+      });
 
+      reset();
+      setPayUser(null);
 
-    reset();
-    setPayUser(null);
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: err.response?.data?.message || "Something went wrong!",
+      });
+    }
   };
 
   return (
@@ -116,7 +198,7 @@ const HrEmployeeList = () => {
 
                 <td>
                   <Link to={`/dashboard/employee-details/${emp.email}`}>
-                    <FaInfoCircle className="text-xl cursor-pointer text-blue-500" />
+                    <FaInfoCircle className="text-xl text-blue-500" />
                   </Link>
                 </td>
               </tr>
@@ -127,53 +209,29 @@ const HrEmployeeList = () => {
 
       {/* PAGINATION */}
 
-      <div className="flex items-center justify-center gap-2 mt-8">
-        {/* Previous */}
-
+      <div className="flex justify-center gap-2 mt-8">
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
-          className={`px-2 py-2 rounded-lg border transition
-      ${
-        page === 1
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-blue-500 hover:bg-blue-600 text-white border-blue-300"
-      }
-    `}
+          className="btn"
         >
           Prev
         </button>
-
-        {/* Page Numbers */}
 
         {[...Array(totalPages).keys()].map((num) => (
           <button
             key={num}
             onClick={() => setPage(num + 1)}
-            className={`w-8 h-8 rounded-full transition font-semibold
-        ${
-          page === num + 1
-            ? "bg-blue-600 text-white shadow"
-            : "bg-white border hover:bg-blue-50"
-        }
-      `}
+            className={`btn ${page === num + 1 && "btn-primary"}`}
           >
             {num + 1}
           </button>
         ))}
 
-        {/* Next */}
-
         <button
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
-          className={`px-2 py-2 rounded-lg border transition
-      ${
-        page === totalPages
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-blue-600 text-white hover:bg-blue-700"
-      }
-    `}
+          className="btn"
         >
           Next
         </button>
@@ -192,20 +250,48 @@ const HrEmployeeList = () => {
               className="input input-bordered w-full"
             />
 
-            <input
+            {/* MONTH */}
+            <select
               {...register("month")}
-              placeholder="Month"
               required
               className="input input-bordered w-full"
-            />
+            >
+              <option value="">Select Month</option>
+              {months.map((m) => (
+                <option
+                  key={m}
+                  value={m}
+                  disabled={paidMonths.includes(m)}
+                >
+                  {m} {paidMonths.includes(m) ? "(Paid)" : ""}
+                </option>
+              ))}
+            </select>
+
+            {/* YEAR */}
             <input
               {...register("year")}
-              placeholder="Year"
+              placeholder="Year (e.g. 2025)"
               required
               className="input input-bordered w-full"
             />
 
-            <button className="btn btn-primary w-full">Pay</button>
+            {/* ⚠️ WARNING */}
+            {isDuplicate && (
+              <p className="text-red-500 text-sm">
+                Salary already requested for this month & year
+              </p>
+            )}
+
+            {/* SUBMIT */}
+            <button
+              disabled={isDuplicate}
+              className={`btn w-full ${
+                isDuplicate ? "btn-disabled" : "btn-primary"
+              }`}
+            >
+              {isDuplicate ? "Already Requested" : "Payment Request to Admin"}
+            </button>
 
             <button
               type="button"
