@@ -42,11 +42,16 @@ const PaymentModal = ({ payData, closeModal, refetch }) => {
       }
 
       // ✅ Payment success
-      if (result.paymentIntent.status === "succeeded") {
+      if (result.paymentIntent?.status === "succeeded") {
+        const transactionId = result.paymentIntent.id;
 
-        // 🔥 IMPORTANT FIX: send transactionId
+        if (!transactionId) {
+          Swal.fire("Error", "Transaction ID missing!", "error");
+          return;
+        }
+
         await axiosSecure.patch(`/admin/pay/${payData._id}`, {
-          transactionId: result.paymentIntent.id,
+          transactionId,
         });
 
         Swal.fire("Success!", "Salary Paid!", "success");
@@ -66,9 +71,7 @@ const PaymentModal = ({ payData, closeModal, refetch }) => {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-xl w-96 space-y-4"
       >
-        <h2 className="text-xl font-bold">
-          Pay Salary: ${payData.salary}
-        </h2>
+        <h2 className="text-xl font-bold">Pay Salary: ${payData.salary}</h2>
 
         <CardElement />
 

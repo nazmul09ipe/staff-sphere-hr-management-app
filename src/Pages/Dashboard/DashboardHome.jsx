@@ -10,13 +10,29 @@ import {
 } from "react-icons/fa";
 import useRole from "../../Hooks/useRole";
 
+// ================= HELPER =================
+const formatMoney = (amount) => `$${Number(amount || 0).toLocaleString()}`;
+
+// ================= CARD =================
+const Card = ({ title, value, icon, color }) => (
+  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow flex items-center gap-4 hover:shadow-lg transition">
+    <div className={`text-3xl ${color}`}>{icon}</div>
+    <div>
+      <p className="text-gray-500 dark:text-gray-300">{title}</p>
+      <p className="text-xl font-bold text-gray-800 dark:text-white">{value}</p>
+    </div>
+  </div>
+);
+
 const DashboardHome = () => {
   const { user, loading: authLoading } = useContext(AuthContext);
   const axiosSecure = useAxiosSecure();
   const { role, roleLoading } = useRole();
 
   const currentDate = new Date();
-  const currentMonth = currentDate.toLocaleString("default", { month: "long" });
+  const currentMonth = currentDate.toLocaleString("default", {
+    month: "long",
+  });
   const currentYear = currentDate.getFullYear();
 
   // ================= USERS =================
@@ -35,7 +51,9 @@ const DashboardHome = () => {
     enabled: !!user?.email && !!role,
     queryFn: async () => {
       const endpoint =
-        role === "admin" ? "/payments" : `/payments?email=${user.email}`;
+        role === "admin" || role === "hr"
+          ? "/payments"
+          : `/payments?email=${user.email}`;
       const res = await axiosSecure.get(endpoint);
       return res.data;
     },
@@ -75,7 +93,7 @@ const DashboardHome = () => {
     },
   });
 
-  // ================= SUMMARY (HR + EMPLOYEE) =================
+  // ================= SUMMARY =================
   const { data: summaryData = {}, isLoading: summaryLoading } = useQuery({
     queryKey: ["payroll-summary", currentMonth, currentYear],
     enabled: role === "hr" || role === "employee",
@@ -113,7 +131,7 @@ const DashboardHome = () => {
   ) {
     return (
       <p className="text-center py-10 text-gray-500 dark:text-gray-300">
-        Loading dashboard data...
+        Loading dashboard...
       </p>
     );
   }
@@ -128,24 +146,28 @@ const DashboardHome = () => {
     0,
   );
 
-  // HR / Employee
+  // Employee earnings
+  const totalEmployeeEarnings = payments.reduce(
+    (sum, p) => sum + Number(p.salary || 0),
+    0,
+  );
+
+  // HR summary
   const totalEmployeesPaid = summaryData.totalEmployeesPaid || 0;
   const totalEmployeesToBePaid = summaryData.totalPending || 0;
   const totalPaidAmountHR = summaryData.totalPaidAmount || 0;
 
-  // ADMIN CALCULATION
-  const payrollList = payrollData?.payments || [];
+  // ADMIN
+  const payrollList = Array.isArray(payrollData)
+    ? payrollData
+    : payrollData?.payments || [];
 
- const paidList = payrollList.filter(
-  (p) => p.paid === true || p.paid === "true" || p.status === "paid"
-);
+  const lastFivePayments = [...payrollList]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
-const pendingList = payrollList.filter(
-  (p) => p.paid !== true && p.paid !== "true" && p.status !== "paid"
-);
-
-  const totalPaidEmployeesAdmin = paidList.length;
-  
+  const paidList = payrollList.filter((p) => p.paid === true);
+  const pendingList = payrollList.filter((p) => !p.paid);
 
   const totalPaidAmountAdmin = paidList.reduce(
     (sum, p) => sum + Number(p.salary || 0),
@@ -158,12 +180,12 @@ const pendingList = payrollList.filter(
   );
 
   const totalPayrollAmount = totalPaidAmountAdmin + totalPendingAmount;
-
+  console.log(lastFivePayments);
   // ================= UI =================
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
-      {/* PROFILE + DATE */}
-      <div className="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl shadow-lg">
+      {/* PROFILE */}
+      <div className="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
         <div className="flex items-center gap-4">
           <img
             src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
@@ -178,112 +200,178 @@ const pendingList = payrollList.filter(
           </div>
         </div>
 
-        <div className="text-right">
-          <p>Today</p>
-          <p className="text-xl font-bold">
-            {currentDate.toLocaleDateString()}
-          </p>
+        <div>
+          <p>{currentDate.toLocaleDateString()}</p>
         </div>
       </div>
-
-      {/* SUMMARY */}
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
-        {role !== "employee" && (
-          <div className="bg-white p-6 rounded-xl shadow flex gap-4">
-            <FaUsers className="text-3xl text-blue-500" />
-            <div>
-              <p>Total Employees</p>
-              <p className="text-xl font-bold">{totalEmployees}</p>
-            </div>
-          </div>
-        )}
-
-        <div className="bg-white p-6 rounded-xl shadow flex gap-4">
-          <FaMoneyCheck className="text-3xl text-green-500" />
-          <div>
-            <p>Total Payments</p>
-            <p className="text-xl font-bold">{payments.length}</p>
-          </div>
-        </div>
-
-        {role === "admin" && (
-          <div className="bg-white p-6 rounded-xl shadow flex gap-4">
-            <FaClipboardList className="text-3xl text-red-500" />
-            <div>
-              <p>Pending Approvals</p>
-              <p className="text-xl font-bold">{pendingData.length}</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* HR / EMPLOYEE */}
-      {(role === "hr" || role === "employee") && (
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card
-            title="Work Hours"
-            value={role === "hr" ? totalHours : totalWorkHours}
-          />
-          <Card title="Employees Paid" value={totalEmployeesPaid} />
-          <Card title="Pending Salaries" value={totalEmployeesToBePaid} />
-          <Card title="Paid Amount" value={`$${totalPaidAmountHR}`} />
-        </div>
-      )}
 
       {/* ADMIN */}
       {role === "admin" && (
-        <>
-          <div className="grid md:grid-cols-4 gap-6 mb-6">
-            <Card title="Total Payroll" value={`$${totalPayrollAmount}`} />
-            <Card title="Paid Employees" value={totalPaidEmployeesAdmin} />
-            <Card title="Paid Amount" value={`$${totalPaidAmountAdmin}`} />
+        <div className="grid md:grid-cols-5 gap-6">
+          <Card
+            title="Employees"
+            value={totalEmployees}
+            icon={<FaUsers />}
+            color="text-blue-500"
+          />
+          <Card
+            title="Total Payroll"
+            value={formatMoney(totalPayrollAmount)}
+            icon={<FaMoneyCheck />}
+            color="text-green-500"
+          />
+          <Card
+            title="Paid"
+            value={formatMoney(totalPaidAmountAdmin)}
+            icon={<FaMoneyCheck />}
+            color="text-emerald-500"
+          />
+          <Card
+            title="Pending"
+            value={formatMoney(totalPendingAmount)}
+            icon={<FaMoneyCheck />}
+            color="text-yellow-500"
+          />
+          <Card
+            title="Approvals"
+            value={pendingData.length}
+            icon={<FaClipboardList />}
+            color="text-red-500"
+          />
+        </div>
+      )}
+      {role === "admin" && (
+        <div className="mt-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+          <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-white">
+            Last 5 Payments
+          </h3>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm text-left">
+              <thead>
+                <tr className="border-b dark:border-gray-700">
+                  <th className="py-2">Name</th>
+                  <th>Email</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Txn ID</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {lastFivePayments.map((payment, index) => (
+                  <tr
+                    key={index}
+                    className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <td className="py-2">{payment.name}</td>
+                    <td>{payment.email}</td>
+                    <td>{formatMoney(payment.salary)}</td>
+                    <td>
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${
+                          payment.paid
+                            ? "bg-green-100 text-green-600"
+                            : "bg-yellow-100 text-yellow-600"
+                        }`}
+                      >
+                        {payment.paid ? "Paid" : "Pending"}
+                      </span>
+                    </td>
+                    <td>
+                      {payment.createdAt
+                        ? new Date(payment.createdAt).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                    <td
+                      className={`text-xs ${
+                        payment.paid ? "text-green-500" : "text-gray-400"
+                      }`}
+                    >
+                      {payment.paid
+                        ? payment.transactionId || "Missing"
+                        : "Not Paid"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+        </div>
+      )}
 
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h3 className="text-lg font-bold mb-4 text-gray-800">
-              Pending Approvals
-            </h3>
+      {/* HR */}
+      {role === "hr" && (
+        <div className="grid md:grid-cols-5 gap-6">
+          <Card
+            title="Work Hours"
+            value={totalHours}
+            icon={<FaClipboardList />}
+            color="text-indigo-500"
+          />
+          <Card
+            title="Employees Paid"
+            value={totalEmployeesPaid}
+            icon={<FaUsers />}
+            color="text-green-500"
+          />
+          <Card
+            title="Pending Salaries"
+            value={totalEmployeesToBePaid}
+            icon={<FaUsers />}
+            color="text-yellow-500"
+          />
+          <Card
+            title="Salary Paid"
+            value={formatMoney(totalPaidAmountHR)}
+            icon={<FaMoneyCheck />}
+            color="text-emerald-500"
+          />
+          <Card
+            title="Avg Salary"
+            value={
+              totalEmployeesPaid
+                ? formatMoney(totalPaidAmountHR / totalEmployeesPaid)
+                : "$0"
+            }
+            icon={<FaFileAlt />}
+            color="text-purple-500"
+          />
+        </div>
+      )}
 
-            {pendingData.length === 0 ? (
-              <p className="text-gray-500">No pending approvals</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-4 py-2 text-left border-b">Email</th>
-                      <th className="px-4 py-2 text-left border-b">Month</th>
-                      <th className="px-4 py-2 text-left border-b">Year</th>
-                      <th className="px-4 py-2 text-left border-b">Salary</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {pendingData.map((item) => (
-                      <tr key={item._id} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 border-b">{item.email}</td>
-                        <td className="px-4 py-2 border-b">{item.month}</td>
-                        <td className="px-4 py-2 border-b">{item.year}</td>
-                        <td className="px-4 py-2 border-b">${item.salary}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </>
+      {/* EMPLOYEE */}
+      {role === "employee" && (
+        <div className="grid md:grid-cols-4 gap-6">
+          <Card
+            title="Work Hours"
+            value={totalWorkHours}
+            icon={<FaClipboardList />}
+            color="text-indigo-500"
+          />
+          <Card
+            title="Payments"
+            value={payments.length}
+            icon={<FaMoneyCheck />}
+            color="text-green-500"
+          />
+          <Card
+            title="Earnings"
+            value={formatMoney(totalEmployeeEarnings)}
+            icon={<FaMoneyCheck />}
+            color="text-emerald-500"
+          />
+          <Card
+            title="Pending"
+            value={totalEmployeesToBePaid}
+            icon={<FaUsers />}
+            color="text-yellow-500"
+          />
+        </div>
       )}
     </div>
   );
 };
-
-// reusable card
-const Card = ({ title, value }) => (
-  <div className="bg-white p-6 rounded-xl shadow">
-    <p>{title}</p>
-    <p className="text-xl font-bold">{value}</p>
-  </div>
-);
 
 export default DashboardHome;

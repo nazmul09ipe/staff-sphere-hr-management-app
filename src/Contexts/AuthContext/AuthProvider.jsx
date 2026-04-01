@@ -12,14 +12,11 @@ import {
 import { auth } from "../../../Firebase.config";
 import AuthContext from "./AuthContext";
 
-
-
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -27,10 +24,9 @@ const AuthProvider = ({ children }) => {
   };
 
   const signInUser = (email, password) => {
-  setLoading(true);
-  return signInWithEmailAndPassword(auth, email, password);
-};
-
+    setLoading(true);
+    return signInWithEmailAndPassword(auth, email, password);
+  };
 
   const signInGoogle = () => {
     setLoading(true);
@@ -48,14 +44,31 @@ const AuthProvider = ({ children }) => {
 
   // observe user state
   useEffect(() => {
-    const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
+      if (currentUser) {
+        const token = await currentUser.getIdToken();
+
+        await fetch("http://localhost:5000/login", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          credentials: "include", // 🔥 IMPORTANT
+          body: JSON.stringify({ token }),
+        });
+      } else {
+        await fetch("http://localhost:5000/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      }
+
       setLoading(false);
-      console.log(currentUser);
     });
-    return () => {
-      unSubscribe();
-    };
+
+    return () => unsubscribe();
   }, []);
 
   const authInfo = {
