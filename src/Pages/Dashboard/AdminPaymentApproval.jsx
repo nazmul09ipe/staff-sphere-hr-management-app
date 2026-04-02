@@ -46,7 +46,7 @@ const AdminPaymentApproval = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 rounded-xl shadow overflow-x-auto">
+      <div className="bg-blue-100 dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 rounded-xl shadow overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-left">

@@ -15,7 +15,7 @@ const formatMoney = (amount) => `$${Number(amount || 0).toLocaleString()}`;
 
 // ================= CARD =================
 const Card = ({ title, value, icon, color }) => (
-  <div className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 p-6 rounded-xl flex items-center gap-4 transition hover:shadow-md">
+  <div className="bg-blue-100 dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 p-6 rounded-xl flex items-center gap-4 transition hover:shadow-md">
     <div className={`text-3xl ${color}`}>{icon}</div>
     <div>
       <p className="text-gray-500 dark:text-gray-400 text-sm">{title}</p>
@@ -187,7 +187,7 @@ const DashboardHome = () => {
   return (
     <div className="min-h-screen p-6 bg-gray-50 dark:bg-[#0f172a]">
       {/* PROFILE */}
-      <div className="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
+      <div className="flex justify-between items-center mb-8 bg-blue-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
   <div className="flex items-center gap-4">
     <img
       src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
@@ -256,13 +256,13 @@ const DashboardHome = () => {
         </div>
       )}
       {role === "admin" && (
-  <div className="mt-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+  <div className="mt-10 p-6 rounded-xl shadow bg-blue-100 dark:bg-[#1e293b]">
     <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">
       Last 5 Payments
     </h3>
 
     <div className="overflow-x-auto">
-      <table className="min-w-full text-sm text-left text-gray-700 dark:text-gray-300">
+      <table className="min-w-full text-sm text-left text-gray-700  dark:text-gray-300">
         <thead>
           <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
             <th className="py-2">Name</th>
@@ -300,8 +300,8 @@ const DashboardHome = () => {
                 <span
                   className={`px-2 py-1 rounded text-xs font-medium ${
                     payment.paid
-                      ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                      : "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+                      ? "bg-green-200 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-yellow-200 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
                   }`}
                 >
                   {payment.paid ? "Paid" : "Pending"}

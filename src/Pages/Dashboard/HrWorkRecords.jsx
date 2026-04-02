@@ -159,7 +159,7 @@ const HrWorkRecords = () => {
       )}
 
       {/* Table */}
-      <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow overflow-x-auto">
+      <div className="bg-blue-100 dark:bg-[#1e293b] rounded-xl shadow overflow-x-auto">
         <table className="min-w-full table-fixed text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">

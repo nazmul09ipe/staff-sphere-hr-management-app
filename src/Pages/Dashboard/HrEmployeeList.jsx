@@ -109,7 +109,7 @@ const HrEmployeeList = () => {
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Manage employee verification and salary requests</p>
 
       <div className="overflow-x-auto bg-white dark:bg-[#1e293b] rounded-xl shadow">
-        <table className="min-w-full text-sm table-fixed">
+        <table className="min-w-full text-sm table-fixed bg-blue-100 dark:bg-[#1e293b]">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
               <th className="py-3 px-4 text-left w-[20%]">Name</th>

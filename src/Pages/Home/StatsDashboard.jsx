@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import CountUp from "react-countup";
-import { FaUsers, FaBoxOpen, FaShoppingCart, FaGlobe, FaAward } from "react-icons/fa";
+import {
+  FaUsers,
+  FaBoxOpen,
+  FaShoppingCart,
+  FaGlobe,
+  FaAward,
+} from "react-icons/fa";
 
 // Stats Data
 const statsData = [
@@ -13,62 +19,110 @@ const statsData = [
 
 const StatsDashboard = () => {
   const [visible, setVisible] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Scroll-triggered visibility
+  // Scroll trigger
   useEffect(() => {
     const handleScroll = () => {
-      const element = document.getElementById("stats-dashboard");
-      if (!element) return;
-      const rect = element.getBoundingClientRect();
-      if (rect.top <= window.innerHeight - 100) {
-        setVisible(true);
-      }
+      const el = document.getElementById("stats-dashboard");
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= window.innerHeight - 100) setVisible(true);
     };
 
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // initial check
+    handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Inline styles for self-contained component
+  // Dark mode detection
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const updateTheme = (e) => setIsDarkMode(e.matches);
+    setIsDarkMode(media.matches);
+
+    if (media.addEventListener) {
+      media.addEventListener("change", updateTheme);
+    } else {
+      media.addListener(updateTheme);
+    }
+
+    return () => {
+      if (media.removeEventListener) {
+        media.removeEventListener("change", updateTheme);
+      } else {
+        media.removeListener(updateTheme);
+      }
+    };
+  }, []);
+
+  // Styles
   const styles = {
     container: {
       display: "flex",
-      justifyContent: "space-around",
+      justifyContent: "center",
       flexWrap: "wrap",
-      gap: "2rem",
-      padding: "2rem",
-      backgroundColor: "#f5f7fa",
+      gap: "2.5rem",
+      padding: "4rem 6rem",
+      background: isDarkMode
+        ? "linear-gradient(135deg, #0f172a, #020617)"
+        : "linear-gradient(135deg, #e0f2fe, #eef2ff)",
     },
+
     card: {
-      background: "linear-gradient(135deg, #ffffff, #f0f4f8)",
-      padding: "2rem",
-      borderRadius: "15px",
+      background: isDarkMode
+        ? "linear-gradient(135deg, #1e293b, #0f172a)"
+        : "linear-gradient(135deg, #ffffff, #f8fafc)",
+      padding: "2.5rem 2rem",
+      borderRadius: "16px",
       textAlign: "center",
-      boxShadow: "0 10px 20px rgba(0,0,0,0.08)",
-      flex: "1 1 180px",
-      transition: "transform 0.3s, box-shadow 0.3s",
-      cursor: "default",
+      boxShadow: isDarkMode
+        ? "0 10px 25px rgba(0,0,0,0.6)"
+        : "0 10px 25px rgba(0,0,0,0.1)",
+      flex: "1 1 200px",
+      minWidth: "180px",
+      maxWidth: "240px",
+      transition: "all 0.3s ease",
     },
+
     cardHover: {
-      transform: "translateY(-5px)",
-      boxShadow: "0 15px 25px rgba(0,0,0,0.15)",
+      transform: "translateY(-8px)",
+      boxShadow: isDarkMode
+        ? "0 20px 35px rgba(0,0,0,0.7)"
+        : "0 20px 35px rgba(0,0,0,0.15)",
     },
-    icon: {
-      fontSize: "2.5rem",
-      color: "#0070f3",
+
+    // ✅ Centered Icon
+    iconWrapper: {
+      display: "flex",
+      justifyContent: "center",
       marginBottom: "1rem",
     },
+
+    icon: {
+      fontSize: "1.6rem",
+      color: "#fff",
+      background: isDarkMode
+        ? "linear-gradient(135deg, #38bdf8, #6366f1)"
+        : "linear-gradient(135deg, #2563eb, #7c3aed)",
+      padding: "12px",
+      borderRadius: "50%",
+      boxShadow: "0 6px 15px rgba(0,0,0,0.2)",
+    },
+
     count: {
-      fontSize: "2rem",
-      fontWeight: "bold",
-      color: "#111827",
+      fontSize: "2.4rem",
+      fontWeight: "700",
+      color: isDarkMode ? "#f1f5f9" : "#0f172a",
       marginBottom: "0.5rem",
     },
+
     label: {
-      fontSize: "1rem",
-      color: "#6b7280",
+      fontSize: "0.95rem",
+      color: isDarkMode ? "#cbd5f5" : "#64748b",
+      letterSpacing: "0.5px",
     },
   };
 
@@ -78,23 +132,27 @@ const StatsDashboard = () => {
         <div
           key={index}
           style={styles.card}
-          className="stat-card"
-          onMouseEnter={(e) => e.currentTarget.style.transform = styles.cardHover.transform}
-          onMouseLeave={(e) => e.currentTarget.style.transform = "none"}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = styles.cardHover.transform)
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "none")
+          }
         >
-          <div style={styles.icon}>{stat.icon}</div>
+          {/* Centered Icon */}
+          <div style={styles.iconWrapper}>
+            <div style={styles.icon}>{stat.icon}</div>
+          </div>
+
           <div style={styles.count}>
             {visible ? (
-              <CountUp
-                end={stat.value}
-                duration={2.5}
-                separator=","
-              /> 
+              <CountUp end={stat.value} duration={2.5} separator="," />
             ) : (
               0
             )}
             {stat.suffix}
           </div>
+
           <div style={styles.label}>{stat.label}</div>
         </div>
       ))}
