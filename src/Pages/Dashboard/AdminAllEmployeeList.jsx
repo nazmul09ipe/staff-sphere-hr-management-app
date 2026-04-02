@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { FaUserShield, FaFire } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { useState } from "react";
 
 const AdminAllEmployeeList = () => {
   const axiosSecure = useAxiosSecure();
@@ -13,22 +13,21 @@ const AdminAllEmployeeList = () => {
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["adminEmployees", page],
     queryFn: async () => {
-      const res = await axiosSecure.get(
-        `/admin/employees?page=${page}&limit=${limit}`,
-      );
+      const res = await axiosSecure.get(`/admin/employees?page=${page}&limit=${limit}`);
       return res.data;
     },
   });
 
   const employees = data?.employees || [];
   const totalPages = data?.totalPages || 1;
-  // MAKE HR
+
+  // Make HR
   const makeHR = async (id) => {
     await axiosSecure.patch(`/users/make-hr/${id}`);
     refetch();
   };
 
-  // FIRE
+  // Fire user
   const fireUser = async (user) => {
     Swal.fire({
       title: "Are you sure?",
@@ -45,61 +44,73 @@ const AdminAllEmployeeList = () => {
   };
 
   return (
-    <div className="p-6 bg-slate-100 min-h-screen">
-      <h2 className="text-2xl font-bold mb-6">All Employees</h2>
+    <div className="p-6 bg-slate-100 dark:bg-[#0f172a] min-h-screen text-gray-800 dark:text-gray-100">
+      {/* Heading */}
+      <div className="mb-8">
+        <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-100">
+          All Employees
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Manage employee roles and status
+        </p>
+      </div>
 
-      <div className="bg-white rounded-xl shadow overflow-x-auto">
-        <table className="table w-full">
+      {/* Table */}
+      <div className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 rounded-xl shadow overflow-x-auto">
+        <table className="min-w-full text-sm">
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Designation</th>
-              <th>Make HR</th>
-              <th>Fire</th>
+            <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-left">
+              <th className="py-3 px-4 w-[35%]">Name</th>
+              <th className="px-4 w-[25%]">Designation</th>
+              <th className="px-4 w-[20%] text-center">Make HR</th>
+              <th className="px-4 w-[20%] text-center">Fire</th>
             </tr>
           </thead>
 
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="4" className="text-center py-10">
+                <td colSpan="4" className="text-center py-10 text-gray-500 dark:text-gray-400">
                   Loading...
                 </td>
               </tr>
             ) : employees.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center py-10 text-gray-500">
+                <td colSpan="4" className="text-center py-10 text-gray-500 dark:text-gray-400">
                   No employees found
                 </td>
               </tr>
             ) : (
               employees.map((emp) => (
-                <tr key={emp._id}>
-                  <td>{emp.name}</td>
-                  <td className="capitalize">{emp.role}</td>
+                <tr
+                  key={emp._id}
+                  className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#334155] transition"
+                >
+                  <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-100">{emp.name}</td>
+                  <td className="px-4 capitalize text-gray-600 dark:text-gray-300">{emp.role}</td>
 
-                  {/* MAKE HR */}
-                  <td>
+                  {/* Make HR */}
+                  <td className="px-4 text-center">
                     {emp.role === "hr" ? (
-                      "HR"
+                      <span className="text-green-600 dark:text-green-400 font-semibold">HR</span>
                     ) : (
                       <button
                         onClick={() => makeHR(emp._id)}
-                        className="btn btn-xs btn-primary"
+                        className="inline-flex items-center justify-center px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition"
                       >
                         <FaUserShield />
                       </button>
                     )}
                   </td>
 
-                  {/* FIRE */}
-                  <td>
+                  {/* Fire */}
+                  <td className="px-4 text-center">
                     {emp.isFired ? (
-                      <span className="text-red-500 font-semibold">Fired</span>
+                      <span className="text-red-500 dark:text-red-400 font-semibold">Fired</span>
                     ) : (
                       <button
                         onClick={() => fireUser(emp)}
-                        className="btn btn-xs btn-error text-white"
+                        className="inline-flex items-center justify-center px-3 py-1 rounded-md text-sm font-medium bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition"
                       >
                         <FaFire />
                       </button>
@@ -113,39 +124,46 @@ const AdminAllEmployeeList = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-4 mt-6">
-        {/* Prev Button */}
+      <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
         <button
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-      ${
-        page === 1
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-95"
-      }`}
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          onClick={() => setPage(page - 1)}
           disabled={page === 1}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition
+            ${
+              page === 1
+                ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            }`}
         >
-          ← Previous
+          Prev
         </button>
 
-        {/* Page Info */}
-        <span className="text-sm font-semibold text-gray-700">
-          Page <span className="text-blue-600">{page}</span> of{" "}
-          <span className="text-blue-600">{totalPages}</span>
-        </span>
+        {[...Array(totalPages).keys()].map((p) => (
+          <button
+            key={p}
+            onClick={() => setPage(p + 1)}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition
+              ${
+                page === p + 1
+                  ? "bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
+                  : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+              }`}
+          >
+            {p + 1}
+          </button>
+        ))}
 
-        {/* Next Button */}
         <button
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-      ${
-        page === totalPages
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md active:scale-95"
-      }`}
-          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+          onClick={() => setPage(page + 1)}
           disabled={page === totalPages}
+          className={`px-4 py-2 rounded-md text-sm font-medium transition
+            ${
+              page === totalPages
+                ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            }`}
         >
-          Next →
+          Next
         </button>
       </div>
     </div>

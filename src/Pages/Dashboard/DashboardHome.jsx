@@ -15,11 +15,13 @@ const formatMoney = (amount) => `$${Number(amount || 0).toLocaleString()}`;
 
 // ================= CARD =================
 const Card = ({ title, value, icon, color }) => (
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow flex items-center gap-4 hover:shadow-lg transition">
+  <div className="bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 p-6 rounded-xl flex items-center gap-4 transition hover:shadow-md">
     <div className={`text-3xl ${color}`}>{icon}</div>
     <div>
-      <p className="text-gray-500 dark:text-gray-300">{title}</p>
-      <p className="text-xl font-bold text-gray-800 dark:text-white">{value}</p>
+      <p className="text-gray-500 dark:text-gray-400 text-sm">{title}</p>
+      <p className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+        {value}
+      </p>
     </div>
   </div>
 );
@@ -183,27 +185,40 @@ const DashboardHome = () => {
   console.log(lastFivePayments);
   // ================= UI =================
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-purple-50 via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-[#0f172a]">
       {/* PROFILE */}
-      <div className="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 p-5 rounded-xl shadow">
-        <div className="flex items-center gap-4">
-          <img
-            src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
-            className="w-16 h-16 rounded-full"
-          />
-          <div>
-            <h2 className="text-xl font-bold">{user?.displayName}</h2>
-            <p>{user?.email}</p>
-            <span className="text-xs bg-blue-100 px-2 py-1 rounded">
-              {role}
-            </span>
-          </div>
-        </div>
+      <div className="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
+  <div className="flex items-center gap-4">
+    <img
+      src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
+      className="w-16 h-16 rounded-full border-2 border-gray-200 dark:border-gray-600"
+    />
 
-        <div>
-          <p>{currentDate.toLocaleDateString()}</p>
-        </div>
-      </div>
+    <div>
+      {/* NAME */}
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+        {user?.displayName}
+      </h2>
+
+      {/* EMAIL */}
+      <p className="text-gray-600 dark:text-gray-400 text-sm">
+        {user?.email}
+      </p>
+
+      {/* ROLE BADGE */}
+      <span className="inline-block mt-1 text-xs px-2 py-1 rounded bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 capitalize">
+        {role}
+      </span>
+    </div>
+  </div>
+
+  {/* DATE */}
+  <div>
+    <p className="text-sm text-gray-500 dark:text-gray-400">
+      {currentDate.toLocaleDateString()}
+    </p>
+  </div>
+</div>
 
       {/* ADMIN */}
       {role === "admin" && (
@@ -241,65 +256,84 @@ const DashboardHome = () => {
         </div>
       )}
       {role === "admin" && (
-        <div className="mt-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
-          <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-white">
-            Last 5 Payments
-          </h3>
+  <div className="mt-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow">
+    <h3 className="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">
+      Last 5 Payments
+    </h3>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm text-left">
-              <thead>
-                <tr className="border-b dark:border-gray-700">
-                  <th className="py-2">Name</th>
-                  <th>Email</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th>Txn ID</th>
-                </tr>
-              </thead>
+    <div className="overflow-x-auto">
+      <table className="min-w-full text-sm text-left text-gray-700 dark:text-gray-300">
+        <thead>
+          <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
+            <th className="py-2">Name</th>
+            <th>Email</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Txn ID</th>
+          </tr>
+        </thead>
 
-              <tbody>
-                {lastFivePayments.map((payment, index) => (
-                  <tr
-                    key={index}
-                    className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    <td className="py-2">{payment.name}</td>
-                    <td>{payment.email}</td>
-                    <td>{formatMoney(payment.salary)}</td>
-                    <td>
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          payment.paid
-                            ? "bg-green-100 text-green-600"
-                            : "bg-yellow-100 text-yellow-600"
-                        }`}
-                      >
-                        {payment.paid ? "Paid" : "Pending"}
-                      </span>
-                    </td>
-                    <td>
-                      {payment.createdAt
-                        ? new Date(payment.createdAt).toLocaleDateString()
-                        : "N/A"}
-                    </td>
-                    <td
-                      className={`text-xs ${
-                        payment.paid ? "text-green-500" : "text-gray-400"
-                      }`}
-                    >
-                      {payment.paid
-                        ? payment.transactionId || "Missing"
-                        : "Not Paid"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        <tbody>
+          {lastFivePayments.map((payment, index) => (
+            <tr
+              key={index}
+              className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+            >
+              {/* NAME */}
+              <td className="py-2 font-medium text-gray-800 dark:text-gray-100">
+                {payment.name}
+              </td>
+
+              {/* EMAIL */}
+              <td className="text-gray-600 dark:text-gray-300">
+                {payment.email}
+              </td>
+
+              {/* AMOUNT */}
+              <td className="text-gray-700 dark:text-gray-200">
+                {formatMoney(payment.salary)}
+              </td>
+
+              {/* STATUS */}
+              <td>
+                <span
+                  className={`px-2 py-1 rounded text-xs font-medium ${
+                    payment.paid
+                      ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                      : "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+                  }`}
+                >
+                  {payment.paid ? "Paid" : "Pending"}
+                </span>
+              </td>
+
+              {/* DATE */}
+              <td className="text-gray-500 dark:text-gray-400">
+                {payment.createdAt
+                  ? new Date(payment.createdAt).toLocaleDateString()
+                  : "N/A"}
+              </td>
+
+              {/* TRANSACTION ID */}
+              <td
+                className={`text-xs font-mono ${
+                  payment.paid
+                    ? "text-green-500 dark:text-green-400"
+                    : "text-gray-400"
+                }`}
+              >
+                {payment.paid
+                  ? payment.transactionId || "Missing"
+                  : "Not Paid"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
 
       {/* HR */}
       {role === "hr" && (

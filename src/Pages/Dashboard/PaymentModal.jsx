@@ -8,7 +8,6 @@ const PaymentModal = ({ payData, closeModal, refetch }) => {
   const elements = useElements();
   const axiosSecure = useAxiosSecure();
 
-  // ✅ Create payment intent
   const { mutateAsync: createPaymentIntent } = useMutation({
     mutationFn: async () => {
       const res = await axiosSecure.post("/create-payment-intent", {
@@ -21,27 +20,22 @@ const PaymentModal = ({ payData, closeModal, refetch }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!stripe || !elements) return;
 
     try {
-      // 1️⃣ Get clientSecret
       const { clientSecret } = await createPaymentIntent();
 
-      // 2️⃣ Confirm payment
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
         },
       });
 
-      // ❌ Stripe error
       if (result.error) {
         Swal.fire("Error", result.error.message, "error");
         return;
       }
 
-      // ✅ Payment success
       if (result.paymentIntent?.status === "succeeded") {
         const transactionId = result.paymentIntent.id;
 
@@ -50,11 +44,9 @@ const PaymentModal = ({ payData, closeModal, refetch }) => {
           return;
         }
 
-        await axiosSecure.patch(`/admin/pay/${payData._id}`, {
-          transactionId,
-        });
+        await axiosSecure.patch(`/admin/pay/${payData._id}`, { transactionId });
 
-        Swal.fire("Success!", "Salary Paid!", "success");
+        Swal.fire("Success!", "Salary Paid Successfully!", "success");
 
         refetch();
         closeModal();
@@ -66,23 +58,39 @@ const PaymentModal = ({ payData, closeModal, refetch }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-xl w-96 space-y-4"
+        className="bg-white dark:bg-gray-800 p-6 rounded-xl w-96 space-y-5 shadow-lg"
       >
-        <h2 className="text-xl font-bold">Pay Salary: ${payData.salary}</h2>
+        {/* PROFESSIONAL HEADING */}
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Salary Payment
+        </h2>
+        <p className="text-gray-700 dark:text-gray-300">
+          Employee: <span className="font-semibold">{payData.name}</span>
+        </p>
+        <p className="text-gray-700 dark:text-gray-300 mb-2">
+          Amount: <span className="font-semibold">${payData.salary}</span>
+        </p>
 
-        <CardElement />
+        {/* STRIPE CARD INPUT */}
+        <div className="p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+          <CardElement options={{ hidePostalCode: true }} />
+        </div>
 
-        <button className="btn btn-success w-full text-white">
+        {/* ACTION BUTTONS */}
+        <button
+          type="submit"
+          className="btn btn-success w-full text-white"
+        >
           Confirm Payment
         </button>
 
         <button
           type="button"
           onClick={closeModal}
-          className="btn btn-ghost w-full"
+          className="btn btn-ghost w-full text-gray-700 dark:text-gray-300"
         >
           Cancel
         </button>
