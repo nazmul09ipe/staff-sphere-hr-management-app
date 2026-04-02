@@ -5,6 +5,7 @@ import OurProducts from "./OurProducts";
 import OurBuyers from './OurBuyers';
 import CEOTestimonials from "./CEOTestimonials";
 import Certifications from './Certifications';
+import StatsDashboard from './StatsDashboard';
 
 
 
@@ -18,6 +19,7 @@ const Home = () => {
       <OurBuyers></OurBuyers>
        <CEOTestimonials></CEOTestimonials>
        <Certifications></Certifications>
+       <StatsDashboard></StatsDashboard>
      
      
       

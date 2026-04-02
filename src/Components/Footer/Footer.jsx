@@ -5,12 +5,21 @@ import {
   FaEnvelope,
   FaPhoneAlt,
   FaMapMarkerAlt,
+  FaArrowUp,
 } from "react-icons/fa";
 import { Link as ScrollLink } from "react-scroll"; // Smooth scroll
 
 const Footer = () => {
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
-    <footer className="bg-gradient-to-t from-gray-900 via-gray-950 to-gray-900 text-gray-300 pt-14 pb-8">
+    <footer className="bg-gradient-to-t from-gray-900 via-gray-950 to-gray-900 text-gray-300 pt-14 pb-8 relative">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Logo + Slogan */}
         <div>
@@ -42,7 +51,6 @@ const Footer = () => {
                 Our Products
               </ScrollLink>
             </li>
-
             <li className="hover:text-primary transition-colors duration-300">
               <ScrollLink
                 to="our-buyers"
@@ -104,6 +112,15 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      {/* Scroll to Top Button */}
+      <button
+        onClick={scrollToTop}
+        className="absolute right-6 bottom-6 w-12 h-12 flex items-center justify-center bg-primary rounded-full hover:bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg transition-all duration-300"
+        aria-label="Scroll to top"
+      >
+        <FaArrowUp className="text-white text-lg" />
+      </button>
 
       {/* Bottom Line */}
       <div className="border-t border-gray-700 mt-10 pt-4 text-center text-sm text-gray-400">
