@@ -10,23 +10,45 @@ const PrivateRoute = ({ children }) => {
   const location = useLocation();
   const axiosSecure = useAxiosSecure();
 
-  const { data: dbUser = {}, isLoading } = useQuery({
-    enabled: !!user?.email,
+  const {
+    data: dbUser,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["dbUser", user?.email],
+    enabled: !!user?.email,
+    retry: false, // 🔥 prevent infinite retry on 403
     queryFn: async () => {
       const res = await axiosSecure.get(`/users/${user.email}`);
       return res.data.user;
     },
   });
 
-  if (loading || isLoading) return <Loading />;
+  // 🔥 STEP 1: Wait for Firebase auth
+  if (loading) {
+    return <Loading />;
+  }
 
-  // not logged in
+  // 🔥 STEP 2: Not logged in → redirect
   if (!user) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  // 🔥 FIRED USER BLOCK
+  // 🔥 STEP 3: Wait for DB user
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  // 🔥 STEP 4: Handle error (403 / not found)
+  if (isError || !dbUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500 text-lg font-medium">
+        Unauthorized access. User not found in database.
+      </div>
+    );
+  }
+
+  // 🔥 STEP 5: Fired user block
   if (dbUser?.isFired) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-600 text-xl font-semibold">
@@ -35,6 +57,7 @@ const PrivateRoute = ({ children }) => {
     );
   }
 
+  // ✅ STEP 6: Allow access
   return children;
 };
 

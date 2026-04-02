@@ -19,7 +19,12 @@ const underlineVariants = {
 
 const centerUnderlineVariants = {
   initial: { scaleX: 0, originX: 0.5, opacity: 0 }, // start from center
-  hover: { scaleX: 1, originX: 0.5, opacity: 1, transition: { duration: 0.35, ease: "easeOut" } },
+  hover: {
+    scaleX: 1,
+    originX: 0.5,
+    opacity: 1,
+    transition: { duration: 0.35, ease: "easeOut" },
+  },
   active: { scaleX: 1, originX: 0.5, opacity: 1 },
 };
 
@@ -27,9 +32,7 @@ const LinkUnderline = ({ children, isActive, onClick }) => (
   <motion.div
     onClick={onClick}
     className={`cursor-pointer text-lg font-medium relative transition-colors duration-300 ${
-      isActive
-        ? "text-cyan-200"
-        : "text-white/90 hover:text-white"
+      isActive ? "text-cyan-200" : "text-white/90 hover:text-white"
     }`}
     whileHover="hover"
     animate={isActive ? "active" : "initial"}
@@ -137,7 +140,7 @@ const Navbar = () => {
             Contact
           </LinkUnderline>
 
-          {user && (
+          {user && role !== "fired" && (
             <LinkUnderline
               isActive={location.pathname.startsWith("/dashboard")}
               onClick={() => navigate("/dashboard")}
@@ -154,7 +157,11 @@ const Navbar = () => {
             onClick={() => setTheme(!theme)}
             className="text-2xl p-2 bg-white/20 dark:bg-gray-700/40 rounded-full hover:bg-white/40 dark:hover:bg-gray-600/60 transition-colors"
           >
-            {theme ? <GoSun className="text-yellow-400" /> : <FaMoon className="text-white" />}
+            {theme ? (
+              <GoSun className="text-yellow-400" />
+            ) : (
+              <FaMoon className="text-white" />
+            )}
           </button>
 
           {/* Profile / Login */}
@@ -236,7 +243,7 @@ const Navbar = () => {
               Contact
             </LinkUnderline>
 
-            {user && (
+            {user && role !== "fired" && (
               <LinkUnderline
                 isActive={location.pathname.startsWith("/dashboard")}
                 onClick={() => navigate("/dashboard")}

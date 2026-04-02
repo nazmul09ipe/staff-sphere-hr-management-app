@@ -56,7 +56,7 @@ const WorkSheet = () => {
   };
 
   return (
-    <div className="space-y-6 bg-slate-100 dark:bg-gray-900 p-6 rounded-xl shadow min-h-screen">
+    <div className="space-y-6 bg-slate-200 dark:bg-gray-900 p-6 rounded-xl shadow min-h-screen">
 
       {/* PROFESSIONAL PAGE HEADING */}
       <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">
