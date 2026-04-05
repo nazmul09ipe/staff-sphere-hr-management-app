@@ -64,6 +64,7 @@ const DashboardHome = () => {
         )
       ).data,
   });
+
   // ✅ ADMIN PENDING REQUESTS (REAL SOURCE)
   const { data: pendingData = [], isLoading: pendingLoading } = useQuery({
     queryKey: ["pending-approvals"],
@@ -84,8 +85,17 @@ const DashboardHome = () => {
   }
 
   // ================= DATA =================
+
+  const totalRequests = summaryData.totalRequests || 0;
+  const totalPaidEmployeesHR = summaryData.totalEmployeesPaid || 0;
+  const totalPendingHR = summaryData.totalPending || 0;
+  const totalPaidAmountHR = summaryData.totalPaidAmount || 0;
+
   const payments = paymentsData?.payments || [];
   const totalEmployees = usersData.total || 0;
+
+  const totalPaidEmployees = payments.filter((p) => p.paid).length;
+  const totalPendingEmployees = payments.filter((p) => !p.paid).length;
 
   const payrollList = Array.isArray(payrollData)
     ? payrollData
@@ -102,6 +112,7 @@ const DashboardHome = () => {
     (s, p) => s + Number(p.salary || 0),
     0,
   );
+
   const totalPendingApprovals = Array.isArray(pendingData)
     ? pendingData.length
     : 0;
@@ -113,15 +124,23 @@ const DashboardHome = () => {
   ];
 
   const donutDataHR = [
-    { name: "Paid", value: summaryData.totalEmployeesPaid || 0 },
-    { name: "Pending", value: summaryData.totalPending || 0 },
+    { name: "Paid", value: totalPaidEmployeesHR },
+    { name: "Pending", value: totalPendingHR },
   ];
 
+  // Optional: clean minimal bar chart (based on current month only)
+  const hrBarData = [
+    {
+      name: currentMonth,
+      value: totalPaidAmountHR,
+    },
+  ];
   const donutDataEmployee = [
     { name: "Earned", value: totalEmployeeEarnings },
     { name: "Pending", value: summaryData.totalPending || 0 },
   ];
 
+  // Admin Bar Chart
   const adminBarData = [...payrollList]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5)
@@ -130,39 +149,21 @@ const DashboardHome = () => {
       name: `Txn ${i + 1}`,
       value: Number(p.salary || 0),
     }));
-  const hrBarData = Object.values(
-    payrollList.reduce((acc, curr) => {
-      const date = new Date(curr.createdAt);
-      const key = `${date.getFullYear()}-${date.getMonth()}`;
 
-      if (!acc[key]) {
-        acc[key] = {
-          name: date.toLocaleString("default", { month: "short" }),
-          value: 0,
-        };
-      }
+  // HR Bar Chart (last 3 months paid salaries)
 
-      if (curr.paid) {
-        acc[key].value += Number(curr.salary || 0);
-      }
-
-      return acc;
-    }, {}),
-  ).slice(-5);
+  // Employee Bar Chart
   const employeeBarData = Object.values(
     payments.reduce((acc, curr) => {
       const date = new Date(curr.createdAt);
       const key = `${date.getFullYear()}-${date.getMonth()}`;
-
       if (!acc[key]) {
         acc[key] = {
           name: date.toLocaleString("default", { month: "short" }),
           value: 0,
         };
       }
-
       acc[key].value += Number(curr.salary || 0);
-
       return acc;
     }, {}),
   ).slice(-5);
@@ -177,20 +178,16 @@ const DashboardHome = () => {
             src={user?.photoURL || "https://i.ibb.co/4pDNDk1/avatar.png"}
             className="w-16 h-16 rounded-full border-2 border-gray-300 dark:border-gray-600"
           />
-
           <div>
             <h2 className="text-xl font-bold text-gray-800 dark:text-white">
               {user?.displayName || "User"}
             </h2>
-
             <p className="text-sm text-gray-500">{user?.email}</p>
-
             <span className="inline-block mt-1 px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 capitalize">
-              {role} {/* designation */}
+              {role}
             </span>
           </div>
         </div>
-
         <div className="mt-4 md:mt-0 text-sm text-gray-500">
           {currentDate.toLocaleDateString()}
         </div>
@@ -198,6 +195,7 @@ const DashboardHome = () => {
 
       {/* STATS */}
       <div className="grid md:grid-cols-4 gap-6">
+        {/* Admin */}
         {role === "admin" && (
           <>
             <StatCard
@@ -206,23 +204,18 @@ const DashboardHome = () => {
               icon={<FaUsers />}
               color="text-blue-500"
             />
-
             <StatCard
               title="Paid"
               value={formatMoney(totalPaid)}
               icon={<FaMoneyCheck />}
               color="text-green-500"
             />
-
-            {/* ✅ Salary pending (money) */}
             <StatCard
               title="Pending Salary"
               value={formatMoney(totalPending)}
               icon={<FaMoneyCheck />}
               color="text-yellow-500"
             />
-
-            {/* ✅ REAL pending approvals */}
             <StatCard
               title="Pending Approvals"
               value={totalPendingApprovals}
@@ -232,23 +225,37 @@ const DashboardHome = () => {
           </>
         )}
 
+        {/* HR */}
         {role === "hr" && (
           <>
             <StatCard
+              title="Total Requests"
+              value={totalRequests}
+              icon={<FaClipboardList />}
+              color="text-blue-500"
+            />
+            <StatCard
               title="Paid Employees"
-              value={summaryData.totalEmployeesPaid || 0}
+              value={totalPaidEmployeesHR}
               icon={<FaUsers />}
               color="text-green-500"
             />
             <StatCard
-              title="Pending"
-              value={summaryData.totalPending || 0}
+              title="Pending Requests"
+              value={totalPendingHR}
               icon={<FaUsers />}
               color="text-yellow-500"
+            />
+            <StatCard
+              title="Total Paid Amount"
+              value={formatMoney(totalPaidAmountHR)}
+              icon={<FaMoneyCheck />}
+              color="text-purple-500"
             />
           </>
         )}
 
+        {/* Employee */}
         {role === "employee" && (
           <>
             <StatCard
@@ -269,19 +276,27 @@ const DashboardHome = () => {
 
       {/* CHARTS */}
       <div className="grid md:grid-cols-2 gap-6 mt-10">
-        <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl shadow">
-          <h3 className="mb-4 font-semibold">Overview</h3>
-          {role === "admin" && <DonutChart data={donutDataAdmin} />}
-          {role === "hr" && <DonutChart data={donutDataHR} />}
-          {role === "employee" && <DonutChart data={donutDataEmployee} />}
-        </div>
+        {/* Donut Charts */}
+        {role === "admin" && <DonutChart data={donutDataAdmin} />}
+        {role === "hr" && (
+          <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl shadow">
+            <h3 className="mb-4 font-semibold">Employee Payment Status</h3>
+            <DonutChart data={donutDataHR} />
+          </div>
+        )}
+        {role === "employee" && <DonutChart data={donutDataEmployee} />}
 
-        <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl shadow">
-          <h3 className="mb-4 font-semibold">Recent Salaries</h3>
-          {role === "admin" && <BarChartBox data={adminBarData} />}
-          {role === "hr" && <BarChartBox data={hrBarData} />}
-          {role === "employee" && <BarChartBox data={employeeBarData} />}
-        </div>
+        {/* Bar Charts */}
+        {role === "admin" && <BarChartBox data={adminBarData} />}
+        {role === "hr" && (
+          <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl shadow">
+            <h3 className="mb-4 font-semibold">
+              Recent Salaries (Last 3 Months)
+            </h3>
+            <BarChartBox data={hrBarData} />
+          </div>
+        )}
+        {role === "employee" && <BarChartBox data={employeeBarData} />}
       </div>
     </div>
   );
