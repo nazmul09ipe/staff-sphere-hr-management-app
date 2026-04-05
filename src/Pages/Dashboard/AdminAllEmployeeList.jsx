@@ -44,39 +44,39 @@ const AdminAllEmployeeList = () => {
   };
 
   return (
-    <div className="p-6 bg-slate-100 dark:bg-[#0f172a] min-h-screen text-gray-800 dark:text-gray-100">
+    <div className="p-4 sm:p-6 md:p-8 bg-slate-100 dark:bg-[#0f172a] min-h-screen text-gray-800 dark:text-gray-100">
       {/* Heading */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-100">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-gray-100">
           All Employees
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
           Manage employee roles and status
         </p>
       </div>
 
       {/* Table */}
-      <div className="bg-blue-100 dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 rounded-xl shadow overflow-x-auto">
-        <table className="min-w-full text-sm">
+      <div className="overflow-x-auto rounded-xl shadow bg-blue-100 dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700">
+        <table className="min-w-full text-sm sm:text-base">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-left">
-              <th className="py-3 px-4 w-[35%]">Name</th>
-              <th className="px-4 w-[25%]">Designation</th>
-              <th className="px-4 w-[20%] text-center">Make HR</th>
-              <th className="px-4 w-[20%] text-center">Fire</th>
+              <th className="py-3 px-3 sm:px-4 w-[35%]">Name</th>
+              <th className="px-3 sm:px-4 w-[25%]">Designation</th>
+              <th className="px-3 sm:px-4 w-[20%] text-center">Make HR</th>
+              <th className="px-3 sm:px-4 w-[20%] text-center">Fire</th>
             </tr>
           </thead>
 
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan="4" className="text-center py-10 text-gray-500 dark:text-gray-400">
+                <td colSpan="4" className="text-center py-8 sm:py-10 text-gray-500 dark:text-gray-400">
                   Loading...
                 </td>
               </tr>
             ) : employees.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center py-10 text-gray-500 dark:text-gray-400">
+                <td colSpan="4" className="text-center py-8 sm:py-10 text-gray-500 dark:text-gray-400">
                   No employees found
                 </td>
               </tr>
@@ -86,17 +86,17 @@ const AdminAllEmployeeList = () => {
                   key={emp._id}
                   className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#334155] transition"
                 >
-                  <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-100">{emp.name}</td>
-                  <td className="px-4 capitalize text-gray-600 dark:text-gray-300">{emp.role}</td>
+                  <td className="py-3 px-3 sm:px-4 font-medium text-gray-800 dark:text-gray-100">{emp.name}</td>
+                  <td className="px-3 sm:px-4 capitalize text-gray-600 dark:text-gray-300">{emp.role}</td>
 
                   {/* Make HR */}
-                  <td className="px-4 text-center">
+                  <td className="px-3 sm:px-4 text-center">
                     {emp.role === "hr" ? (
                       <span className="text-green-600 dark:text-green-400 font-semibold">HR</span>
                     ) : (
                       <button
                         onClick={() => makeHR(emp._id)}
-                        className="inline-flex items-center justify-center px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition"
+                        className="inline-flex items-center justify-center px-2 sm:px-3 py-1 rounded-md text-sm sm:text-base font-medium bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition"
                       >
                         <FaUserShield />
                       </button>
@@ -104,13 +104,13 @@ const AdminAllEmployeeList = () => {
                   </td>
 
                   {/* Fire */}
-                  <td className="px-4 text-center">
+                  <td className="px-3 sm:px-4 text-center">
                     {emp.isFired ? (
                       <span className="text-red-500 dark:text-red-400 font-semibold">Fired</span>
                     ) : (
                       <button
                         onClick={() => fireUser(emp)}
-                        className="inline-flex items-center justify-center px-3 py-1 rounded-md text-sm font-medium bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition"
+                        className="inline-flex items-center justify-center px-2 sm:px-3 py-1 rounded-md text-sm sm:text-base font-medium bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition"
                       >
                         <FaFire />
                       </button>
@@ -124,11 +124,11 @@ const AdminAllEmployeeList = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+      <div className="flex justify-center items-center gap-2 mt-4 sm:mt-6 flex-wrap">
         <button
           onClick={() => setPage(page - 1)}
           disabled={page === 1}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition
+          className={`px-3 sm:px-4 py-2 rounded-md text-sm sm:text-base font-medium transition
             ${
               page === 1
                 ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
@@ -142,7 +142,7 @@ const AdminAllEmployeeList = () => {
           <button
             key={p}
             onClick={() => setPage(p + 1)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm sm:text-base font-medium transition
               ${
                 page === p + 1
                   ? "bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
@@ -156,7 +156,7 @@ const AdminAllEmployeeList = () => {
         <button
           onClick={() => setPage(page + 1)}
           disabled={page === totalPages}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition
+          className={`px-3 sm:px-4 py-2 rounded-md text-sm sm:text-base font-medium transition
             ${
               page === totalPages
                 ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"

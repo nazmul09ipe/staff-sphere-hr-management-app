@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import {
-  FaCheck,
-  FaTimes,
-  FaMoneyCheckAlt,
-  FaInfoCircle,
-} from "react-icons/fa";
+import { FaCheck, FaTimes, FaMoneyCheckAlt, FaInfoCircle } from "react-icons/fa";
 import { Link } from "react-router";
 import Swal from "sweetalert2";
 
@@ -104,21 +99,22 @@ const HrEmployeeList = () => {
   };
 
   return (
-    <div className="bg-slate-100 dark:bg-[#0f172a] p-6 min-h-screen text-gray-800 dark:text-gray-100 rounded-xl">
-      <h2 className="text-3xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Employee List</h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Manage employee verification and salary requests</p>
+    <div className="bg-slate-100 dark:bg-[#0f172a] p-4 sm:p-6 min-h-screen text-gray-800 dark:text-gray-100 rounded-xl">
+      <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-gray-800 dark:text-gray-100">Employee List</h2>
+      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6">Manage employee verification and salary requests</p>
 
-      <div className="overflow-x-auto bg-white dark:bg-[#1e293b] rounded-xl shadow">
-        <table className="min-w-full text-sm table-fixed bg-blue-100 dark:bg-[#1e293b]">
+      {/* TABLE WRAPPER */}
+      <div className="overflow-x-auto rounded-xl shadow">
+        <table className="min-w-[700px] sm:min-w-full table-auto text-sm sm:text-base bg-white dark:bg-[#1e293b]">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
-              <th className="py-3 px-4 text-left w-[20%]">Name</th>
-              <th className="px-4 w-[25%] text-left">Email</th>
-              <th className="px-4 w-[10%] text-center">Verified</th>
-              <th className="px-4 w-[10%] text-left">Bank</th>
-              <th className="px-4 w-[10%] text-right">Salary</th>
-              <th className="px-4 w-[10%] text-center">Pay</th>
-              <th className="px-4 w-[10%] text-center">Details</th>
+              <th className="py-2 px-3 text-left w-[20%]">Name</th>
+              <th className="px-3 w-[25%] text-left">Email</th>
+              <th className="px-3 w-[10%] text-center">Verified</th>
+              <th className="px-3 w-[10%] text-left">Bank</th>
+              <th className="px-3 w-[10%] text-right">Salary</th>
+              <th className="px-3 w-[10%] text-center">Pay</th>
+              <th className="px-3 w-[10%] text-center">Details</th>
             </tr>
           </thead>
           <tbody>
@@ -127,24 +123,24 @@ const HrEmployeeList = () => {
                 key={emp._id}
                 className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#334155] transition"
               >
-                <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-100">{emp.name}</td>
-                <td className="px-4 text-gray-600 dark:text-gray-300">{emp.email}</td>
-                <td className="px-4 text-center">
+                <td className="py-2 px-3 font-medium text-gray-800 dark:text-gray-100">{emp.name}</td>
+                <td className="px-3 text-gray-600 dark:text-gray-300 break-all">{emp.email}</td>
+                <td className="px-3 text-center">
                   <button onClick={() => toggleVerify(emp)}>
                     {emp.isVerified ? (
-                      <FaCheck className="text-green-500 text-xl" />
+                      <FaCheck className="text-green-500 text-lg sm:text-xl" />
                     ) : (
-                      <FaTimes className="text-red-500 text-xl" />
+                      <FaTimes className="text-red-500 text-lg sm:text-xl" />
                     )}
                   </button>
                 </td>
-                <td className="px-4">{emp.bank_account_no}</td>
-                <td className="px-4 text-right">${emp.salary}</td>
-                <td className="px-4 text-center">
+                <td className="px-3">{emp.bank_account_no}</td>
+                <td className="px-3 text-right">${emp.salary}</td>
+                <td className="px-3 text-center">
                   <button
                     disabled={!emp.isVerified}
                     onClick={() => setPayUser(emp)}
-                    className={`inline-flex items-center justify-center px-3 py-1 rounded-md text-sm font-medium transition ${
+                    className={`inline-flex items-center justify-center px-2 sm:px-3 py-1 rounded-md text-sm sm:text-base font-medium transition ${
                       emp.isVerified
                         ? "bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500"
@@ -153,9 +149,9 @@ const HrEmployeeList = () => {
                     <FaMoneyCheckAlt />
                   </button>
                 </td>
-                <td className="px-4 text-center">
+                <td className="px-3 text-center">
                   <Link to={`/dashboard/employee-details/${emp.email}`}>
-                    <FaInfoCircle className="text-xl text-blue-500 dark:text-blue-400" />
+                    <FaInfoCircle className="text-lg sm:text-xl text-blue-500 dark:text-blue-400" />
                   </Link>
                 </td>
               </tr>
@@ -169,7 +165,7 @@ const HrEmployeeList = () => {
         <button
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+          className={`px-3 py-1 sm:px-4 sm:py-2 rounded-md text-sm sm:text-base font-medium transition ${
             page === 1
               ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
               : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
@@ -182,7 +178,7 @@ const HrEmployeeList = () => {
           <button
             key={num}
             onClick={() => setPage(num + 1)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+            className={`px-3 py-1 sm:px-4 sm:py-2 rounded-md text-sm sm:text-base font-medium transition ${
               page === num + 1
                 ? "bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
                 : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
@@ -195,7 +191,7 @@ const HrEmployeeList = () => {
         <button
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+          className={`px-3 py-1 sm:px-4 sm:py-2 rounded-md text-sm sm:text-base font-medium transition ${
             page === totalPages
               ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
               : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"

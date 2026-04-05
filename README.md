@@ -1,16 +1,64 @@
-# React + Vite
+# NC Group [A Human-resource management app]
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live Site:** [https://yourwebsite.com](https://yourwebsite.com)
 
-Currently, two official plugins are available:
+**Admin Credentials:**  
+- **Username:** kaj@kam.com 
+- **Password:** Kajkam09@gmail.com
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**HR credentials:
+-**Username:** mama@mami.com
+- **Password:** Mamamami09@gmail.com
+---
 
-## React Compiler
+## Overview
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The **NC Group [A Human-resource management app] ** is a fully responsive, modern, and secure admin dashboard built with **React** and **Vite**. It allows HR and Employee management, product tracking, and user management with Firebase authentication and REST API integrations.  
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Features
+
+1. **User Authentication**: Secure login with email/password and Google Sign-In using Firebase Auth.  
+2. **Employee & HR Management**: Create, update, and manage users with role-based access.  
+3. **Password Reset**: Forgot password flow with secure email reset links.  
+4. **File Uploads**: Upload profile photos via **imgBB** integration.  
+5. **Responsive Design**: Optimized for mobile, tablet, and desktop screens.  
+6. **Dark Mode Support**: Toggle between light and dark themes for accessibility.  
+7. **Smooth Scroll Navigation**: Scroll to products, buyers, and other sections smoothly.  
+8. **Dynamic Dashboard**: Real-time updates for user and product information.  
+9. **Production Ready**: TailwindCSS for styling, optimized for fast performance with Vite.  
+10. **Security & Validation**: Form validations, password complexity enforcement, and secure API requests.  
+
+---
+
+## Tech Stack
+
+-## Tech Stack
+
+- **React 18** – Modern frontend library for building UI components
+- **Vite** – Lightning-fast build tool with Hot Module Replacement (HMR)
+- **TailwindCSS** – Utility-first CSS framework for rapid styling
+- **Firebase Authentication** – Secure email/password and Google login
+- **Axios / useAxiosSecure** – HTTP requests with JWT token handling
+- **React Hook Form** – Efficient and easy form validation
+- **SweetAlert2** – Elegant popup notifications for user feedback
+- **TanStack Query (React Query)** – Server state management, caching, and data fetching
+- **Stripe** – Payment gateway integration for secure transactions
+- **JWT Authentication** – JSON Web Tokens for secure API access and session management
+---
+
+## Installation
+
+```bash
+# Clone repository
+git clone https://github.com/yourusername/ncgroup-admin.git
+
+# Install dependencies
+npm install
+
+# Run in development mode
+npm run dev
+
+# Build for production
+npm run build

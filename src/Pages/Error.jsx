@@ -1,13 +1,13 @@
 // src/pages/Error.jsx
 import { motion } from "framer-motion";
-import { Link } from "react-router";
+import { Link } from "react-router-dom"; // Corrected import
 import { FaHome } from "react-icons/fa";
 
 const Error = () => {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-linear-to-b from-emerald-100 via-emerald-200 to-emerald-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-6 text-center">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-emerald-100 via-emerald-200 to-emerald-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-6 text-center">
       
-    
+      {/* Large 404 */}
       <motion.h1
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -17,7 +17,7 @@ const Error = () => {
         404
       </motion.h1>
 
-     
+      {/* Heading */}
       <motion.h2
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -27,6 +27,7 @@ const Error = () => {
         Oops! Page Not Found
       </motion.h2>
 
+      {/* Description */}
       <motion.p
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -36,7 +37,7 @@ const Error = () => {
         Sorry, the page you’re looking for doesn’t exist or may have been moved.
       </motion.p>
 
-    
+      {/* Home Button */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

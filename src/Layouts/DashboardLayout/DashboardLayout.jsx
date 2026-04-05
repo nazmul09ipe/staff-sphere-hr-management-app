@@ -41,15 +41,17 @@ const DashboardLayout = () => {
       <input id="dashboard-drawer" type="checkbox" className="drawer-toggle" />
 
       {/* MAIN CONTENT */}
-      <div className="drawer-content flex flex-col">
+      <div className="drawer-content flex flex-col min-h-screen overflow-hidden">
+        {/* Top navbar for small screens */}
         <div className="navbar bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400 lg:hidden">
           <label htmlFor="dashboard-drawer" className="btn btn-ghost text-xl text-white">
             <FaBars />
           </label>
-          <span className="ml-3 font-semibold text-white">Dashboard</span>
+          <span className="ml-3 font-semibold text-white text-lg">Dashboard</span>
         </div>
 
-        <div className="p-6">
+        {/* Page content */}
+        <div className="p-4 sm:p-6 flex-1 overflow-auto">
           <Outlet />
         </div>
       </div>
@@ -58,12 +60,14 @@ const DashboardLayout = () => {
       <div className="drawer-side">
         <label htmlFor="dashboard-drawer" className="drawer-overlay" />
 
-        <aside className="w-72 min-h-full bg-gradient-to-b from-purple-600 via-blue-500 to-cyan-400 text-white p-6 flex flex-col shadow-lg rounded-r-2xl">
-          <Link to="/" className="flex items-center gap-3 mb-10">
-            <img src={logoImg} alt="logo" className="w-12 h-12 rounded-full" />
-            <h2 className="text-xl font-bold text-white">NC Group</h2>
+        <aside className="w-64 sm:w-72 md:w-80 min-h-full bg-gradient-to-b from-purple-600 via-blue-500 to-cyan-400 text-white p-4 sm:p-6 flex flex-col shadow-lg rounded-r-2xl overflow-y-auto">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 mb-8 sm:mb-10 flex-shrink-0">
+            <img src={logoImg} alt="logo" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full" />
+            <h2 className="text-lg sm:text-xl font-bold text-white">NC Group</h2>
           </Link>
 
+          {/* Navigation */}
           <nav className="flex-1 space-y-2">
             {/* COMMON */}
             <NavLink to="/dashboard" end className={navItem}>
@@ -110,11 +114,20 @@ const DashboardLayout = () => {
             )}
           </nav>
 
-          <div className="divider border-white/30" />
+          <div className="divider border-white/30 my-4" />
 
+          {/* Back to Home */}
           <NavLink to="/" className={navItem}>
             <FaArrowLeft /> Back to Home
           </NavLink>
+
+          {/* Mobile close button */}
+          <label
+            htmlFor="dashboard-drawer"
+            className="btn btn-ghost absolute top-4 right-4 lg:hidden text-white"
+          >
+            <FaArrowLeft />
+          </label>
         </aside>
       </div>
     </div>

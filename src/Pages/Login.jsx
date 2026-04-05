@@ -1,3 +1,4 @@
+// src/pages/auth/Login.jsx
 // @flow strict
 import * as React from "react";
 import { useState, useContext } from "react";
@@ -48,18 +49,22 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors duration-500">
+    <div className="min-h-screen flex justify-center items-center bg-gradient-to-b from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 transition-colors duration-500">
       <PageTitle title="Login" />
 
-      <div className="bg-white dark:bg-gray-900 shadow-2xl rounded-3xl w-full max-w-md p-8 transition-colors duration-500">
-        <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-8">
+      <div className="bg-white dark:bg-gray-900 shadow-2xl rounded-3xl w-full max-w-md p-6 sm:p-8 transition-colors duration-500">
+        {/* Title */}
+        <h1 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-gray-100 mb-6 sm:mb-8">
           Login to Your Account
         </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 sm:space-y-6"
+        >
           {/* Email */}
           <div>
-            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+            <label className="block mb-1 sm:mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
               Email
             </label>
             <input
@@ -69,13 +74,15 @@ function Login() {
               className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors duration-300"
             />
             {errors.email && (
-              <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+              <p className="text-xs sm:text-sm text-red-500 mt-1">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
           {/* Password */}
           <div className="relative">
-            <label className="block mb-2 font-medium text-gray-700 dark:text-gray-300">
+            <label className="block mb-1 sm:mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm sm:text-base">
               Password
             </label>
             <input
@@ -86,12 +93,14 @@ function Login() {
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-11 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-300"
+              className="absolute right-3 top-2/3 transform -translate-y-1/2 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-300"
             >
               {showPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
             {errors.password && (
-              <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+              <p className="text-xs sm:text-sm text-red-500 mt-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -99,7 +108,7 @@ function Login() {
           <div className="text-right">
             <Link
               to="/auth/forgetPassword"
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline transition-colors duration-300"
+              className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline transition-colors duration-300"
             >
               Forgot Password?
             </Link>
@@ -108,7 +117,7 @@ function Login() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl text-white font-semibold 
+            className="w-full py-3 sm:py-3.5 rounded-xl text-white font-semibold 
             bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600
             hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700
             shadow-lg hover:shadow-xl
@@ -122,14 +131,16 @@ function Login() {
           <button
             type="button"
             onClick={handleLoginWithGoogle}
-            className="w-full py-3 rounded-xl border border-gray-300 dark:border-gray-700 flex items-center justify-center gap-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
+            className="w-full py-3 sm:py-3.5 rounded-xl border border-gray-300 dark:border-gray-700 flex items-center justify-center gap-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
           >
             <FcGoogle size={22} />
-            <span className="font-medium">Login with Google</span>
+            <span className="font-medium text-sm sm:text-base">
+              Login with Google
+            </span>
           </button>
 
           {/* Register Link */}
-          <p className="text-center text-gray-700 dark:text-gray-300 mt-2">
+          <p className="text-center text-gray-700 dark:text-gray-300 mt-2 text-xs sm:text-sm">
             New here?{" "}
             <Link
               to="/auth/register"

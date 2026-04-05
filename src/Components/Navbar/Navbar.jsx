@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router";
 import { GoSun } from "react-icons/go";
 import { FaMoon } from "react-icons/fa";
 import { IoHomeOutline, IoMenu, IoClose } from "react-icons/io5";
-
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip } from "react-tooltip";
 import "react-tooltip/dist/react-tooltip.css";
@@ -11,14 +10,8 @@ import "react-tooltip/dist/react-tooltip.css";
 import logo from "../../assets/logo.png";
 import AuthContext from "../../Contexts/AuthContext/AuthContext";
 
-const underlineVariants = {
-  initial: { scaleX: 0, opacity: 0, originX: 0 },
-  hover: { scaleX: 1, opacity: 1, originX: 0, transition: { duration: 0.35 } },
-  active: { scaleX: 1, opacity: 1 },
-};
-
 const centerUnderlineVariants = {
-  initial: { scaleX: 0, originX: 0.5, opacity: 0 }, // start from center
+  initial: { scaleX: 0, originX: 0.5, opacity: 0 },
   hover: {
     scaleX: 1,
     originX: 0.5,
@@ -31,7 +24,7 @@ const centerUnderlineVariants = {
 const LinkUnderline = ({ children, isActive, onClick }) => (
   <motion.div
     onClick={onClick}
-    className={`cursor-pointer text-lg font-medium relative transition-colors duration-300 ${
+    className={`cursor-pointer text-base sm:text-lg font-medium relative transition-colors duration-300 ${
       isActive ? "text-cyan-200" : "text-white/90 hover:text-white"
     }`}
     whileHover="hover"
@@ -53,7 +46,6 @@ const Navbar = () => {
   const { user, role, logOut } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-
   const profileRef = useRef(null);
 
   const [theme, setTheme] = useState(false);
@@ -62,7 +54,6 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
-  // Theme handling
   useEffect(() => {
     const stored = localStorage.getItem("theme") === "dark";
     setTheme(stored);
@@ -78,7 +69,6 @@ const Navbar = () => {
     }
   }, [theme]);
 
-  // Close profile dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -96,40 +86,41 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      initial={{ y: -40, opacity: 0 }}
+      initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="fixed top-0 left-1/2 -translate-x-1/2 w-11/12 md:w-10/12 z-50
+      className="fixed top-0 left-1/2 -translate-x-1/2 w-full sm:w-11/12 md:w-10/12 z-50
         rounded-2xl shadow-lg
-        bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400 dark:from-gray-800 dark:via-gray-900 dark:to-gray-700
+        bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400
+        dark:from-gray-800 dark:via-gray-900 dark:to-gray-700
         border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-md"
     >
-      <div className="flex justify-between items-center h-24 px-4 md:px-8">
-        {/* LOGO */}
+      <div className="flex justify-between items-center h-20 sm:h-24 px-4 sm:px-6 md:px-8">
+        {/* Logo */}
         <div
-          className="flex items-center gap-4 cursor-pointer"
+          className="flex items-center gap-3 sm:gap-4 cursor-pointer"
           onClick={() => navigate("/")}
         >
           <img
             src={logo}
             alt="NC Group Logo"
-            className="w-20 h-20 md:w-24 md:h-24 rounded-full object-contain transition-transform hover:scale-110"
+            className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full object-contain transition-transform hover:scale-110"
           />
-          <div>
-            <h1 className="font-bold text-3xl md:text-4xl text-white tracking-wide">
+          <div className="hidden sm:block">
+            <h1 className="font-bold text-xl sm:text-2xl md:text-3xl text-white tracking-wide">
               NC Group
             </h1>
-            <p className="text-sm text-white/80 mt-1">
+            <p className="text-xs sm:text-sm text-white/80 mt-1">
               Crafting Quality with Commitment
             </p>
           </div>
         </div>
 
-        {/* DESKTOP NAV */}
-        <div className="hidden md:flex gap-10 items-center">
+        {/* Desktop Links */}
+        <div className="hidden md:flex gap-6 lg:gap-10 items-center">
           <LinkUnderline isActive={isActive("/")} onClick={() => navigate("/")}>
-            <span className="flex items-center gap-2">
-              <IoHomeOutline size={22} /> Home
+            <span className="flex items-center gap-1 sm:gap-2">
+              <IoHomeOutline size={20} /> Home
             </span>
           </LinkUnderline>
 
@@ -150,25 +141,21 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="flex items-center gap-4 md:gap-6">
+        {/* Right Side */}
+        <div className="flex items-center gap-2 sm:gap-4 md:gap-6">
           {/* Theme Toggle */}
           <button
             onClick={() => setTheme(!theme)}
-            className="text-2xl p-2 bg-white/20 dark:bg-gray-700/40 rounded-full hover:bg-white/40 dark:hover:bg-gray-600/60 transition-colors"
+            className="text-xl sm:text-2xl p-2 sm:p-3 bg-white/20 dark:bg-gray-700/40 rounded-full hover:bg-white/40 dark:hover:bg-gray-600/60 transition-colors"
           >
-            {theme ? (
-              <GoSun className="text-yellow-400" />
-            ) : (
-              <FaMoon className="text-white" />
-            )}
+            {theme ? <GoSun className="text-yellow-400" /> : <FaMoon className="text-white" />}
           </button>
 
           {/* Profile / Login */}
           {!user ? (
             <button
               onClick={() => navigate("/auth/login")}
-              className="bg-white/30 text-white font-semibold px-5 py-2 rounded-xl hover:bg-white/60 hover:shadow-lg transition"
+              className="bg-white/30 text-white font-semibold px-3 sm:px-5 py-1.5 sm:py-2 rounded-lg hover:bg-white/60 hover:shadow-md transition"
             >
               Login
             </button>
@@ -180,7 +167,7 @@ const Navbar = () => {
                 data-tooltip-content={user?.displayName || "User"}
                 onClick={() => setShowProfile(!showProfile)}
                 alt="User"
-                className="w-10 h-10 rounded-full border-2 border-white cursor-pointer object-cover transition-transform hover:scale-105"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white cursor-pointer object-cover transition-transform hover:scale-105"
               />
               <Tooltip id="profile-tip" place="bottom" />
 
@@ -190,8 +177,7 @@ const Navbar = () => {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    className="absolute right-0 mt-3 w-56 p-4 bg-white dark:bg-gray-800 
-                      border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-[999]"
+                    className="absolute right-0 mt-3 w-56 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-[999]"
                   >
                     <p className="text-sm text-gray-500">Signed in as</p>
                     <p className="font-semibold">{user?.displayName}</p>
@@ -212,14 +198,14 @@ const Navbar = () => {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenu(!mobileMenu)}
-            className="md:hidden text-3xl text-white/90"
+            className="md:hidden text-2xl sm:text-3xl text-white/90 p-1"
           >
             {mobileMenu ? <IoClose /> : <IoMenu />}
           </button>
         </div>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenu && (
           <motion.div
@@ -227,26 +213,18 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="md:hidden bg-gradient-to-r from-purple-600 via-blue-500 to-cyan-400 dark:from-gray-800 dark:via-gray-900 dark:to-gray-700
-              border-t border-gray-200/30 dark:border-gray-700/30 py-5 px-6 space-y-5"
+              border-t border-gray-200/30 dark:border-gray-700/30 py-5 px-4 sm:px-6 space-y-4 sm:space-y-5"
           >
-            <LinkUnderline
-              isActive={isActive("/")}
-              onClick={() => navigate("/")}
-            >
+            <LinkUnderline isActive={isActive("/")} onClick={() => { navigate("/"); setMobileMenu(false); }}>
               Home
             </LinkUnderline>
-
-            <LinkUnderline
-              isActive={isActive("/contact")}
-              onClick={() => navigate("/contact")}
-            >
+            <LinkUnderline isActive={isActive("/contact")} onClick={() => { navigate("/contact"); setMobileMenu(false); }}>
               Contact
             </LinkUnderline>
-
             {user && role !== "fired" && (
               <LinkUnderline
                 isActive={location.pathname.startsWith("/dashboard")}
-                onClick={() => navigate("/dashboard")}
+                onClick={() => { navigate("/dashboard"); setMobileMenu(false); }}
               >
                 Dashboard
               </LinkUnderline>

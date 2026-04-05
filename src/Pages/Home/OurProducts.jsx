@@ -13,22 +13,21 @@ const products = [
   { name: "Suit", image: "https://i.ibb.co/ycbb9rj5/Screenshot-2026-04-02-180651.png" },
   { name: "Shirt", image: "https://i.ibb.co/1fG5JTpT/Screenshot-2026-04-02-180947.png" },
   { name: "Jeans", image: "https://i.ibb.co/kV7jCqDZ/Screenshot-2026-04-02-181215.png" },
-  { name: "Sweater", image: "https://i.ibb.co.com/yFyZLM5j/Screenshot-2026-04-02-181820.png" },
+  { name: "Sweater", image: "https://i.ibb.co/yFyZLM5j/Screenshot-2026-04-02-181820.png" },
 ];
 
 const OurProducts = () => {
   const [showAll, setShowAll] = useState(false);
-
   const displayedProducts = showAll ? products : products.slice(0, 8);
 
   return (
     <section id="our-products" className="py-16 bg-gray-50 dark:bg-gray-900 mb-20">
-      <div className="max-w-7xl mx-auto px-5">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-12">
+      <div className="max-w-7xl mx-auto px-5 sm:px-10 lg:px-20">
+        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white text-center mb-12">
           Our Products
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
           {displayedProducts.map((product, index) => (
             <motion.div
               key={product.name}
@@ -42,10 +41,10 @@ const OurProducts = () => {
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-64 object-cover"
+                className="w-full h-64 sm:h-56 md:h-64 lg:h-64 object-cover"
               />
               <div className="p-4 text-center">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
                   {product.name}
                 </h3>
               </div>

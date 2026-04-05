@@ -75,14 +75,11 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-[#0f172a] p-6">
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 dark:bg-[#0f172a] px-4 py-10 sm:py-20 transition-colors duration-500">
       <PageTitle title="Register" />
 
-      <div className="bg-white dark:bg-[#1e293b] w-full max-w-xl p-10 rounded-2xl shadow-2xl text-gray-800 dark:text-gray-100">
-        <h2 className="text-3xl font-bold text-center mb-2">
-          Create Account
-        </h2>
-
+      <div className="bg-white dark:bg-[#1e293b] w-full max-w-xl p-6 sm:p-10 rounded-2xl shadow-2xl text-gray-800 dark:text-gray-100">
+        <h2 className="text-3xl font-bold text-center mb-2">Create Account</h2>
         <p className="text-center text-gray-500 dark:text-gray-400 mb-6">
           Register as Employee or HR
         </p>
@@ -123,7 +120,7 @@ const Register = () => {
           </select>
           {errors.role && <p className="text-red-500 text-sm">{errors.role.message}</p>}
 
-          {/* BANK */}
+          {/* BANK ACCOUNT */}
           <input
             className="input input-bordered w-full bg-white dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-700"
             placeholder="Bank Account Number"
@@ -152,7 +149,7 @@ const Register = () => {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              className="input input-bordered w-full pr-10 bg-white dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+              className="input input-bordered w-full pr-12 bg-white dark:bg-[#0f172a] text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-700"
               placeholder="Password"
               {...register("password", {
                 required: "Password required",
@@ -164,7 +161,7 @@ const Register = () => {
               })}
             />
             <span
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 dark:text-gray-400"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500 dark:text-gray-400"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -176,6 +173,7 @@ const Register = () => {
             Password must contain uppercase, lowercase, number & symbol.
           </p>
 
+          {/* REGISTER BUTTON */}
           <button
             disabled={loading}
             className="w-full py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-70"
@@ -184,7 +182,7 @@ const Register = () => {
           </button>
 
           <p className="text-center text-sm font-semibold text-gray-500 dark:text-gray-400">
-            Already have account?
+            Already have an account?
             <Link to="/auth/login" className="text-blue-500 underline ml-1">
               Login
             </Link>

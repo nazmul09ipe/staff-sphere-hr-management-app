@@ -29,28 +29,27 @@ const AuthProvider = ({ children }) => {
   };
 
   const signInGoogle = async () => {
-  setLoading(true);
-  const result = await signInWithPopup(auth, googleProvider);
+    setLoading(true);
+    const result = await signInWithPopup(auth, googleProvider);
 
-  const user = result.user;
+    const user = result.user;
 
-  // 🔥 ADD THIS
-  await fetch("http://localhost:5000/users", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      name: user.displayName,
-      email: user.email,
-      photo: user.photoURL,
-      role: "employee", // default role
-    }),
-  });
+    // 🔥 ADD THIS
+    await fetch("http://localhost:5000/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+        role: "employee", // default role
+      }),
+    });
 
-  return result;
-};
-  
+    return result;
+  };
 
   const logOut = () => {
     setLoading(true);

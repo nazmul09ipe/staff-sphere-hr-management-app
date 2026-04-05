@@ -34,30 +34,30 @@ const AdminPaymentApproval = () => {
   }
 
   return (
-    <div className="p-6 bg-slate-100 dark:bg-[#0f172a] min-h-screen text-gray-800 dark:text-gray-100">
+    <div className="p-4 sm:p-6 md:p-8 bg-slate-100 dark:bg-[#0f172a] min-h-screen text-gray-800 dark:text-gray-100">
       {/* Heading */}
-      <div className="mb-8">
-        <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-100">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-gray-100">
           Payment Approval
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">
           Review and approve employee payments
         </p>
       </div>
 
       {/* Table */}
-      <div className="bg-blue-100 dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 rounded-xl shadow overflow-x-auto">
-        <table className="min-w-full text-sm">
+      <div className="overflow-x-auto rounded-xl shadow bg-blue-100 dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700">
+        <table className="min-w-full text-sm sm:text-base">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-left">
-              <th className="py-3 px-4 w-[20%]">Name</th>
-              <th className="px-4 w-[20%]">Email</th>
-              <th className="px-4 w-[10%]">Salary</th>
-              <th className="px-4 w-[10%]">Month</th>
-              <th className="px-4 w-[10%]">Year</th>
-              <th className="px-4 w-[15%]">Payment Date</th>
-              <th className="px-4 w-[10%] text-center">Status</th>
-              <th className="px-4 w-[15%] text-center">Action</th>
+              <th className="py-3 px-2 sm:px-4 w-[20%]">Name</th>
+              <th className="px-2 sm:px-4 w-[20%]">Email</th>
+              <th className="px-2 sm:px-4 w-[10%]">Salary</th>
+              <th className="px-2 sm:px-4 w-[10%]">Month</th>
+              <th className="px-2 sm:px-4 w-[10%]">Year</th>
+              <th className="px-2 sm:px-4 w-[15%]">Payment Date</th>
+              <th className="px-2 sm:px-4 w-[10%] text-center">Status</th>
+              <th className="px-2 sm:px-4 w-[15%] text-center">Action</th>
             </tr>
           </thead>
 
@@ -66,7 +66,7 @@ const AdminPaymentApproval = () => {
               <tr>
                 <td
                   colSpan="8"
-                  className="text-center py-10 text-gray-500 dark:text-gray-400"
+                  className="text-center py-8 sm:py-10 text-gray-500 dark:text-gray-400"
                 >
                   No payments found
                 </td>
@@ -77,19 +77,19 @@ const AdminPaymentApproval = () => {
                   key={p._id}
                   className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-[#334155] transition"
                 >
-                  <td className="py-3 px-4 font-medium text-gray-800 dark:text-gray-100">
+                  <td className="py-3 px-2 sm:px-4 font-medium text-gray-800 dark:text-gray-100">
                     {p.name || "—"}
                   </td>
-                  <td className="px-4 text-gray-600 dark:text-gray-300">{p.email}</td>
-                  <td className="px-4">${p.salary}</td>
-                  <td className="px-4">{p.month}</td>
-                  <td className="px-4">{p.year}</td>
-                  <td className="px-4">
+                  <td className="px-2 sm:px-4 text-gray-600 dark:text-gray-300">{p.email}</td>
+                  <td className="px-2 sm:px-4">${p.salary}</td>
+                  <td className="px-2 sm:px-4">{p.month}</td>
+                  <td className="px-2 sm:px-4">{p.year}</td>
+                  <td className="px-2 sm:px-4">
                     {p.paymentDate
                       ? new Date(p.paymentDate).toLocaleDateString()
                       : "—"}
                   </td>
-                  <td className="px-4 text-center">
+                  <td className="px-2 sm:px-4 text-center">
                     {p.paid ? (
                       <span className="text-green-600 dark:text-green-400 font-semibold">
                         Paid
@@ -100,11 +100,11 @@ const AdminPaymentApproval = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 text-center">
+                  <td className="px-2 sm:px-4 text-center">
                     <button
                       disabled={p.paid}
                       onClick={() => handlePay(p)}
-                      className={`inline-flex items-center justify-center px-3 py-1 rounded-md text-sm font-medium transition
+                      className={`inline-flex items-center justify-center px-2 sm:px-3 py-1 rounded-md text-sm sm:text-base font-medium transition
                         ${
                           p.paid
                             ? "bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed"
@@ -122,11 +122,11 @@ const AdminPaymentApproval = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+      <div className="flex justify-center items-center gap-2 mt-4 sm:mt-6 flex-wrap">
         <button
           onClick={() => setPage(page - 1)}
           disabled={page === 1}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition
+          className={`px-3 sm:px-4 py-2 rounded-md text-sm sm:text-base font-medium transition
             ${
               page === 1
                 ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
@@ -140,7 +140,7 @@ const AdminPaymentApproval = () => {
           <button
             key={p}
             onClick={() => setPage(p + 1)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm sm:text-base font-medium transition
               ${
                 page === p + 1
                   ? "bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
@@ -154,7 +154,7 @@ const AdminPaymentApproval = () => {
         <button
           onClick={() => setPage(page + 1)}
           disabled={page === totalPages}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition
+          className={`px-3 sm:px-4 py-2 rounded-md text-sm sm:text-base font-medium transition
             ${
               page === totalPages
                 ? "bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed"
