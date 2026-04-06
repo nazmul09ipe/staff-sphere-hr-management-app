@@ -1,6 +1,6 @@
 # NC Group [A Human-resource management app]
 
-**Live Site:** [https://yourwebsite.com](https://yourwebsite.com)
+**Live Site:** [https://staff-sphere-hr-management-app.web.app/]
 
 **Admin Credentials:**  
 - **Username:** kaj@kam.com 

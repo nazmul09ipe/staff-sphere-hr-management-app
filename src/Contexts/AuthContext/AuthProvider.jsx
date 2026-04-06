@@ -35,11 +35,12 @@ const AuthProvider = ({ children }) => {
     const user = result.user;
 
     // 🔥 ADD THIS
-    await fetch("http://localhost:5000/users", {
+    await fetch("https://assignment-12-serverside-one.vercel.app/users", {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         name: user.displayName,
         email: user.email,
@@ -68,7 +69,7 @@ const AuthProvider = ({ children }) => {
       if (currentUser) {
         const token = await currentUser.getIdToken();
 
-        await fetch("http://localhost:5000/login", {
+        await fetch("https://assignment-12-serverside-one.vercel.app/login", {
           method: "POST",
           headers: {
             "content-type": "application/json",
@@ -77,7 +78,7 @@ const AuthProvider = ({ children }) => {
           body: JSON.stringify({ token }),
         });
       } else {
-        await fetch("http://localhost:5000/logout", {
+        await fetch("https://assignment-12-serverside-one.vercel.app/logout", {
           method: "POST",
           credentials: "include",
         });
